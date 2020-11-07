@@ -102,3 +102,13 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Tooling
+.idea/
+.vscode/
+
+# Instrumented testing
+*.bat
+*.cmd
+*.sh
+

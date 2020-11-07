@@ -1,0 +1,14 @@
+{
+  "name": "@dousha99/mirai-api-http-ts",
+  "version": "0.1.0",
+  "description": "A TypeScript wrapper used to interact with mirai-api-http",
+  "main": "lib/index.js",
+  "repository": "https://github.com/dousha/mirai-api-http-ts.git",
+  "author": "dousha <lijiahao34@gmail.com>",
+  "license": "AGPL-3.0-or-later",
+  "dependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/ws": "^7.2.9",
+    "ws": "^7.3.1"
+  }
+}
