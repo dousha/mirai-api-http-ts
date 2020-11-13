@@ -5,19 +5,18 @@ export type BasicValueType = string | number;
 export type ValueType = BasicValueType | { [key: string]: ValueType } | { [key: string]: BasicValueType[] };
 
 export class HttpService {
-	constructor(config: ConnectionConfig) {
-		this.config = config;
+	constructor(private readonly config: ConnectionConfig) {
 		this.axios = Axios.create({
 			baseURL: this.assembleBaseUrl(),
 			timeout: 5000,
 			headers: {
-				'Content-Type': 'application/json'
-			}
+				'Content-Type': 'application/json',
+			},
 		});
 	}
 
-	public get(path: string, params?: Record<string, ValueType>) {
-		return this.axios.get(`${path}${ params != null ? '?' + HttpService.assembleGetRequest(params) : ''}`);
+	public get<T>(path: string, params?: Record<string, ValueType>) {
+		return this.axios.get<T>(`${path}${params != null ? '?' + HttpService.assembleGetRequest(params) : ''}`);
 	}
 
 	public post<T>(path: string, params?: Record<string, any>) {
@@ -34,7 +33,7 @@ export class HttpService {
 			switch (typeof value) {
 				case 'string':
 				case 'number':
-					return `${key}=${value}`
+					return `${key}=${value}`;
 				case 'object':
 					if (value instanceof Array) {
 						return value.map(item => `${key}[]=${item}`).join('&');
@@ -49,6 +48,5 @@ export class HttpService {
 		}).filter(it => it.length > 1).join('&');
 	}
 
-	private readonly config: ConnectionConfig;
 	private readonly axios: AxiosInstance;
 }

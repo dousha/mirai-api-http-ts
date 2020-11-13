@@ -8,7 +8,9 @@ export interface ConnectionConfig {
 	host: string;
 	httpPort: number;
 	websocketPort: number;
-	sweepPeriod: number;
+	pollPeriod: number;
+	pollCount: number;
+	useWebsocket: boolean;
 }
 
 export interface AccountConfig {

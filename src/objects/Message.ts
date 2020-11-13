@@ -5,11 +5,11 @@
  */
 export enum MessageType {
 	/// 群消息
-	GROUP_MESSAGE = "GroupMessage",
+	GROUP_MESSAGE = 'GroupMessage',
 	/// 好友消息
-	FRIEND_MESSAGE = "FriendMessage",
+	FRIEND_MESSAGE = 'FriendMessage',
 	/// 临时会话
-	TEMP_MESSAGE = "TempMessage",
+	TEMP_MESSAGE = 'TempMessage',
 }
 
 export interface MessageSender {
@@ -19,13 +19,13 @@ export interface MessageSender {
 
 export enum GroupPermission {
 	/// 群员
-	MEMBER = "MEMBER",
+	MEMBER = 'MEMBER',
 	/// 管理员
-	ADMINISTRATOR = "ADMINISTRATOR",
+	ADMINISTRATOR = 'ADMINISTRATOR',
 	/// 管理员
-	ADMIN = "ADMINISTRATOR",
+	ADMIN = 'ADMINISTRATOR',
 	/// 群主
-	OWNER = "OWNER"
+	OWNER = 'OWNER'
 }
 
 export interface Group {
@@ -61,38 +61,38 @@ export interface Message {
 
 export enum MessageContentType {
 	/// 消息头
-	SOURCE = "Source",
+	SOURCE = 'Source',
 	/// 消息头
-	MESSAGE_HEADER = "Source",
+	MESSAGE_HEADER = 'Source',
 	/// 回复引用
-	QUOTE = "Quote",
+	QUOTE = 'Quote',
 	/// 回复引用
-	REPLY = "Quote",
+	REPLY = 'Quote',
 	/// At
-	AT = "At",
+	AT = 'At',
 	/// At
-	MENTION = "At",
+	MENTION = 'At',
 	/// 所有人
-	AT_ALL = "AtAll",
+	AT_ALL = 'AtAll',
 	/// 所有人
-	MENTION_ALL = "AtAll",
-	FACE = "Face",
-	EMOTICON = "Face",
-	EMOTION = "Face",
-	EMOTE = "Face",
-	PLAIN = "Plain",
-	TEXT = "Plain",
-	IMAGE = "Image",
-	PICTURE = "Image",
-	FLASH_IMAGE = "FlashImage",
-	TRANSIENT_IMAGE = "FlashImage",
-	SELF_DESTRUCT_IMAGE = "FlashImage",
-	VOICE = "Voice",
-	XML = "Xml",
-	JSON = "Json",
-	APP = "App",
-	POKE = "Poke",
-	INTERACT = "Poke"
+	MENTION_ALL = 'AtAll',
+	FACE = 'Face',
+	EMOTICON = 'Face',
+	EMOTION = 'Face',
+	EMOTE = 'Face',
+	PLAIN = 'Plain',
+	TEXT = 'Plain',
+	IMAGE = 'Image',
+	PICTURE = 'Image',
+	FLASH_IMAGE = 'FlashImage',
+	TRANSIENT_IMAGE = 'FlashImage',
+	SELF_DESTRUCT_IMAGE = 'FlashImage',
+	VOICE = 'Voice',
+	XML = 'Xml',
+	JSON = 'Json',
+	APP = 'App',
+	POKE = 'Poke',
+	INTERACT = 'Poke'
 }
 
 export interface MessageContent {
@@ -213,21 +213,21 @@ export interface AppMessage extends MessageContent {
 
 export enum InteractMessageType {
 	/// 戳一戳
-	POKE = "Poke",
+	POKE = 'Poke',
 	/// 比心
-	SHOW_LOVE = "ShowLove",
+	SHOW_LOVE = 'ShowLove',
 	/// 比心
-	SHOW_HEART = "ShowLove",
+	SHOW_HEART = 'ShowLove',
 	/// 点赞
-	LIKE = "Like",
+	LIKE = 'Like',
 	/// 心碎
-	HEART_BROKEN = "HeartBroken",
+	HEART_BROKEN = 'HeartBroken',
 	/// 666
-	SIX_SIX_SIX = "SixSixSix",
+	SIX_SIX_SIX = 'SixSixSix',
 	/// 放大招
-	FANG_DA_ZHAO = "FangDaZhao",
+	FANG_DA_ZHAO = 'FangDaZhao',
 	/// 放大招
-	ULT = "FangDaZhao"
+	ULT = 'FangDaZhao'
 }
 
 export interface InteractMessage extends MessageContent {

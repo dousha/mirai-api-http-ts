@@ -4,9 +4,7 @@ import { BasicResponse, SessionInitiateResponse } from '../objects/ServerRespons
 import { StatusCode } from '../objects/StatusCode';
 
 export class SessionAuthenticationService {
-	constructor(config: AccountConfig, http: HttpService) {
-		this.config = config;
-		this.http = http;
+	constructor(private readonly config: AccountConfig, private readonly http: HttpService) {
 		this.tokenPromise = this.setup();
 	}
 
@@ -19,7 +17,7 @@ export class SessionAuthenticationService {
 			authKey: this.config.authKey,
 		}).then(reply => {
 			if (reply.data.code !== StatusCode.SUCCESS) {
-				throw new Error('');
+				throw new Error('Bad auth key!');
 			} else {
 				return reply.data.session;
 			}
@@ -27,11 +25,15 @@ export class SessionAuthenticationService {
 			this.http.post<BasicResponse>('/verify', {
 				sessionKey: key,
 				qq: this.config.account,
-			}).then(() => key),
+			}).then(res => {
+				if (res.data.code !== StatusCode.SUCCESS) {
+					throw new Error('Cannot bind to account!');
+				} else {
+					return key;
+				}
+			}),
 		);
 	}
 
-	private readonly config: AccountConfig;
-	private readonly http: HttpService;
 	private readonly tokenPromise: Promise<string>;
 }

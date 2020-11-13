@@ -3,8 +3,8 @@ import { HttpService } from './HttpService';
 import { OutboundMessageChain } from '../objects/OutboundMessageChain';
 import { BasicResponse } from '../objects/ServerResponse';
 
-export class MessagingService {
-	constructor(auth: SessionAuthenticationService, http: HttpService) {
+export class OutboundMessagingService {
+	constructor(private readonly auth: SessionAuthenticationService, private readonly http: HttpService) {
 		this.auth = auth;
 		this.http = http;
 	}
@@ -44,7 +44,4 @@ export class MessagingService {
 				target: messageId,
 			}));
 	}
-
-	private readonly auth: SessionAuthenticationService;
-	private readonly http: HttpService;
 }

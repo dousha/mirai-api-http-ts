@@ -21,7 +21,7 @@ export class OutboundMessageChain {
 		const out = new OutboundMessageChain();
 		const obj: PlainText = {
 			type: MessageContentType.TEXT,
-			text: msg
+			text: msg,
 		};
 		out.append(obj);
 		return out;
@@ -31,7 +31,7 @@ export class OutboundMessageChain {
 		const out = new OutboundMessageChain();
 		const obj: UrlBasedOutboundImage = {
 			type: MessageContentType.IMAGE,
-			url: imageUrl
+			url: imageUrl,
 		};
 		out.append(obj);
 		return out;
@@ -43,9 +43,9 @@ export class OutboundMessageChain {
 		return out;
 	}
 
+	private content: MessageContent[] = [];
+
 	public get chain(): MessageContent[] {
 		return this.content;
 	}
-
-	private content: MessageContent[] = [];
 }
