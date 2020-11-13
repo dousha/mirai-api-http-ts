@@ -1,4 +1,13 @@
-import { GroupMessageSender, Message, MessageHeader, MessageType, PrivateMessageSender } from './Message';
+import {
+	GroupMessageSender,
+	Message,
+	MessageContent,
+	MessageContentType,
+	MessageHeader,
+	MessageType,
+	PlainText,
+	PrivateMessageSender,
+} from './Message';
 import { OutboundMessagingService } from '../services/OutboundMessagingService';
 import { OutboundMessageChain } from './OutboundMessageChain';
 import { AxiosResponse } from 'axios';
@@ -30,6 +39,34 @@ export class InboundMessage {
 			default:
 				return Promise.reject('');
 		}
+	}
+
+	public isPlainTextMessage(): boolean {
+		const firstPiece = this.getFirstPieceOfMessageContent();
+		return firstPiece != null && firstPiece.type === MessageContentType.TEXT;
+	}
+
+	public isImageMessage(): boolean {
+		const firstPiece = this.getFirstPieceOfMessageContent();
+		return firstPiece != null && firstPiece.type === MessageContentType.IMAGE;
+	}
+
+	public getFirstPieceOfMessageContent(): MessageContent | undefined {
+		for (let msg of this.message.messageChain) {
+			if (msg.type === MessageContentType.MESSAGE_HEADER || msg.type === MessageContentType.QUOTE) {
+				continue;
+			}
+			return msg;
+		}
+		return undefined;
+	}
+
+	public getPlainText(): string {
+		return this.message.messageChain
+			.filter(it => it.type === MessageContentType.TEXT)
+			.map(it => it as PlainText)
+			.map(it => it.text)
+			.join('\n');
 	}
 
 	public toMiraiCode(): string {

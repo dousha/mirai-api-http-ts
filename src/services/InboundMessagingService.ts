@@ -33,7 +33,7 @@ export class InboundMessagingService extends EventEmitter {
 				if (res.data.code === 0) {
 					res.data.data.forEach(it => {
 						this.emit('message', new InboundMessage(it, this.out));
-					})
+					});
 				} else {
 					this.emit('error', new Error(res.data.code));
 				}
