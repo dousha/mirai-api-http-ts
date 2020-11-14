@@ -46,3 +46,11 @@ export class MiraiClient extends EventEmitter {
 	private ws?: WebSocketService;
 	private inbound?: InboundMessagingService;
 }
+
+/* Re-exporting necessary stuff */
+
+export { Config };
+export { InboundMessage };
+export * as Message from './src/objects/Message';
+export { OutboundMessageChain } from './src/objects/OutboundMessageChain';
+export { StatusCode } from './src/objects/StatusCode';
