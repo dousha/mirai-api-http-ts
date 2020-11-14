@@ -1,6 +1,6 @@
 {
   "name": "@dousha99/mirai-api-http-ts",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A TypeScript wrapper used to interact with mirai-api-http",
   "main": "lib/index.js",
   "repository": "https://github.com/dousha/mirai-api-http-ts.git",
