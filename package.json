@@ -1,8 +1,8 @@
 {
   "name": "@dousha99/mirai-api-http-ts",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A TypeScript wrapper used to interact with mirai-api-http",
-  "main": "lib/index.js",
+  "main": "build/index.js",
   "repository": "https://github.com/dousha/mirai-api-http-ts.git",
   "author": "dousha <lijiahao34@gmail.com>",
   "license": "AGPL-3.0-or-later",
@@ -17,5 +17,6 @@
   },
   "files": [
     "build"
-  ]
+  ],
+  "types": "./build/index.d.ts"
 }
