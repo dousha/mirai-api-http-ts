@@ -1,12 +1,14 @@
 import { Message } from '../objects/Message';
 
 export function isMessage(a: unknown): a is Message {
-	return typeof a === 'object'
-		&& 'type' in a
-		&& 'sender' in a
-		&& 'messageChain' in a
-		&& typeof a['type'] === 'string'
-		&& typeof a['sender'] === 'object'
-		&& typeof a['messageChain'] === 'object'
-		&& a['messageChain'] instanceof Array;
+	/// XXX: TypeScript is not smart enough, using Any type is necessary.
+	const cast = <any> a;
+	return typeof cast === 'object'
+		&& 'type' in cast
+		&& 'sender' in cast
+		&& 'messageChain' in cast
+		&& typeof cast['type'] === 'string'
+		&& typeof cast['sender'] === 'object'
+		&& typeof cast['messageChain'] === 'object'
+		&& cast['messageChain'] instanceof Array;
 }

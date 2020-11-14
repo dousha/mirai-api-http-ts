@@ -8,7 +8,7 @@ const mirai = new MiraiClient({
 		host: 'localhost',
 		httpPort: 8080,
 		websocketPort: 8080,
-		useWebsocket: false,
+		useWebsocket: true,
 		pollPeriod: 5000,
 		pollCount: 5,
 	},
@@ -22,7 +22,7 @@ mirai.on('message', msg => {
 		if (msg.isPlainTextMessage()) {
 			const text = msg.getPlainText();
 			msg.reply(OutboundMessageChain.ofText(text)).catch(e => console.error(e));
-			if (text.trim() === '/stop') {
+			if (text.trim() === 'stophammertime') {
 				mirai.close();
 			}
 		}

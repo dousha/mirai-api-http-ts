@@ -12,7 +12,16 @@ export class SessionAuthenticationService {
 		return this.tokenPromise;
 	}
 
+	public close() {
+		return this.obtainToken().then(token =>
+			this.http.post('/release', {
+				sessionKey: token,
+				qq: this.config.account,
+			}));
+	}
+
 	private setup() {
+		console.debug(`Logging in for ${this.config.account} with key ${this.config.authKey}`);
 		return this.http.post<SessionInitiateResponse>('/auth', {
 			authKey: this.config.authKey,
 		}).then(reply => {

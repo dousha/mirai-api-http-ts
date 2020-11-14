@@ -19,7 +19,8 @@ export class MiraiClient extends EventEmitter {
 		this.http = new HttpService(config.connection);
 		this.auth = new SessionAuthenticationService(config.account, this.http);
 		this.out = new OutboundMessagingService(this.auth, this.http);
-		this.auth.obtainToken().then(() => {
+		this.auth.obtainToken().then(token => {
+			console.debug(`Obtained token ${token}`);
 			this.emit('connect');
 		});
 		if (config.connection.useWebsocket) {
@@ -36,6 +37,7 @@ export class MiraiClient extends EventEmitter {
 	public close() {
 		this.ws?.close();
 		this.inbound?.close();
+		this.auth.close().catch(console.error);
 	}
 
 	private readonly http: HttpService;

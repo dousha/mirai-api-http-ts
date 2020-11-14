@@ -35,6 +35,7 @@ export class InboundMessagingService extends EventEmitter {
 						this.emit('message', new InboundMessage(it, this.out));
 					});
 				} else {
+					console.error(`Received non-zero error code: ${res.data.code}`);
 					this.emit('error', new Error(res.data.code));
 				}
 			});
