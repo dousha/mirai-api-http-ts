@@ -1,0 +1,15 @@
+{
+	"connection": {
+		"tls": false,
+		"host": "localhost",
+		"httpPort": 8080,
+		"websocketPort": 8080,
+		"pollPeriod": 10000,
+		"pollCount": 10,
+		"useWebsocket": true
+	},
+	"account": {
+		"authKey": "CHANGE_ME",
+		"account": 123456789
+	}
+}

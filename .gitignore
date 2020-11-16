@@ -112,3 +112,7 @@ dist
 *.cmd
 *.sh
 
+# Build output
+build/
+lib/
+
