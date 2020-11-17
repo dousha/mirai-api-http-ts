@@ -16,7 +16,16 @@ import { AxiosResponse } from 'axios';
 import { BasicResponse } from './ServerResponse';
 import { TODO } from '../utils/TodoUtils';
 
+/**
+ * 入站消息
+ */
 export class InboundMessage {
+	/**
+	 * @constructor
+	 * @hideconstructor
+	 * @param {Message} message 消息
+	 * @param {OutboundMessagingService} srvc 发送服务
+	 */
 	constructor(public readonly message: Message, private readonly srvc: OutboundMessagingService) {
 	}
 
