@@ -13,7 +13,14 @@ export interface MiraiClient extends EventEmitter {
 	on(type: 'error', cb: (err?: Error) => void): this;
 }
 
+/**
+ * 客户端核心类
+ */
 export class MiraiClient extends EventEmitter {
+	/**
+	 * @constructor
+	 * @param {Config} config 客户端配置
+	 */
 	constructor(config: Config) {
 		super();
 		this.http = new HttpService(config.connection);
