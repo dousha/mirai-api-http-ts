@@ -6,6 +6,11 @@ import { SessionAuthenticationService } from './src/services/SessionAuthenticati
 import { WebSocketService } from './src/services/WebSocketService';
 import { InboundMessagingService } from './src/services/InboundMessagingService';
 import { OutboundMessagingService } from './src/services/OutboundMessagingService';
+import { Friend } from './src/objects/Friend';
+import { FriendListingResponse, GroupListingResponse, GroupMemberListingResponse } from './src/objects/ServerResponse';
+import { Group } from './src/objects/Message';
+import { GroupMember } from './src/objects/GroupMember';
+import { GroupManager } from './src/objects/GroupManager';
 
 export interface MiraiClient extends EventEmitter {
 	on(type: 'connect', cb: () => void): this;
@@ -41,6 +46,65 @@ export class MiraiClient extends EventEmitter {
 		}
 	}
 
+	/**
+	 * 等待机器人就绪
+	 * <br>
+	 * 这个函数存在的意义只是为了好看，或者说允许 `await` 机器人就绪。
+	 * 它并没有特殊的用途，你也不需要等待机器人就绪后再注册回调函数。
+	 *
+	 * @since 0.1.4
+	 */
+	public waitForReady(): Promise<void> {
+		return this.auth.obtainToken().then(() => {});
+	}
+
+	/**
+	 * 获取好友列表
+	 *
+	 * @since 0.1.4
+	 */
+	public getFriendList(): Promise<Friend[]> {
+		return this.auth.obtainToken().then(token =>
+			this.http.get<FriendListingResponse>('/friendList', {
+				sessionKey: token,
+			})).then(x => x.data);
+	}
+
+	/**
+	 * 获取群列表
+	 *
+	 * @since 0.1.4
+	 */
+	public getGroupList(): Promise<Group[]> {
+		return this.auth.obtainToken().then(token =>
+			this.http.get<GroupListingResponse>('/groupList', {
+				sessionKey: token,
+			}).then(x => x.data));
+	}
+
+	/**
+	 * 获取群成员列表
+	 *
+	 * @param {number} groupId 群号
+	 * @since 0.1.4
+	 */
+	public getMembersOfGroup(groupId: number): Promise<GroupMember[]> {
+		return this.auth.obtainToken().then(token =>
+			this.http.get<GroupMemberListingResponse>('/memberList', {
+				sessionKey: token,
+				target: groupId,
+			}).then(x => x.data));
+	}
+
+	/**
+	 * 获取群管理工具
+	 *
+	 * @param {number} groupId 群号
+	 */
+	public getGroupManager(groupId: number): GroupManager {
+		return new GroupManager(groupId, this.http, this.auth);
+	}
+
 	public close() {
 		this.ws?.close();
 		this.inbound?.close();
@@ -56,8 +120,7 @@ export class MiraiClient extends EventEmitter {
 
 /* Re-exporting necessary stuff */
 
-export { Config };
-export { InboundMessage };
+export { Config, InboundMessage, Friend, GroupManager };
 export * as Message from './src/objects/Message';
 export { OutboundMessageChain } from './src/objects/OutboundMessageChain';
 export { StatusCode } from './src/objects/StatusCode';

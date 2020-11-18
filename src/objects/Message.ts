@@ -1,7 +1,8 @@
 /**
  * 基本消息类型
  *
- * @remarks 这个枚举可能不包含所有的事件类型。
+ * @readonly
+ * @enum {string}
  */
 export enum MessageType {
 	/** 群消息 */
@@ -21,12 +22,15 @@ export enum MessageType {
  * @see PrivateMessageSender
  */
 export interface MessageSender {
-	/** 群号或者 QQ 号，取决于实际类型 */
+	/** 发送者的 QQ 号 */
 	id: number;
 }
 
 /**
  * 群成员权限
+ *
+ * @enum {string}
+ * @readonly
  */
 export enum GroupPermission {
 	/** 群员 */
@@ -92,6 +96,8 @@ export interface Message {
 /**
  * 消息内容类型
  *
+ * @enum {string}
+ * @readonly
  * @remarks 注意到有些枚举项目是同义词。这是为了给出最大的兼容性（和个人的一点点偏好）。
  */
 export enum MessageContentType {
@@ -330,6 +336,9 @@ export interface AppMessage extends MessageContent {
 
 /**
  * 戳一戳动作类型
+ *
+ * @enum {string}
+ * @readonly
  */
 export enum InteractMessageType {
 	/** 戳一戳 */
