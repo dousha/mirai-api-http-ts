@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,7 +7,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> LocalImageBasedOutboundImage</title>
+  <title> src/objects/GroupMember.ts</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -73,101 +75,25 @@
         <div class="core" id="main-content-wrapper">
             <div class="content">
                 <header class="page-title">
-                    <p>Interface</p>
-                    <h1>LocalImageBasedOutboundImage</h1>
+                    <p>Source</p>
+                    <h1>src/objects/GroupMember.ts</h1>
                 </header>
                 
 
 
 
-
-<section>
-
-<header>
     
-        <h2>LocalImageBasedOutboundImage</h2>
-        
-    
-</header>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { GroupMessageSender } from './Message';
 
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description">基于本地文件的出站图片</div>
-        
-
-        
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="src_objects_Message.ts.html" class="button">View Source</a>
-            <span>
-                <a href="src_objects_Message.ts.html">src/objects/Message.ts</a>, <a href="src_objects_Message.ts.html#line307">line 307</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-        
-    
-    </div>
-    
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+/**
+ * 群成员信息
+ */
+export type GroupMember = GroupMessageSender &amp; { id: number };
+</code></pre>
+        </article>
+    </section>
 
 
 

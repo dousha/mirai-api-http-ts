@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,7 +7,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> LocalImageBasedOutboundImage</title>
+  <title> src/objects/GroupManager.ts</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -73,101 +75,136 @@
         <div class="core" id="main-content-wrapper">
             <div class="content">
                 <header class="page-title">
-                    <p>Interface</p>
-                    <h1>LocalImageBasedOutboundImage</h1>
+                    <p>Source</p>
+                    <h1>src/objects/GroupManager.ts</h1>
                 </header>
                 
 
 
 
-
-<section>
-
-<header>
     
-        <h2>LocalImageBasedOutboundImage</h2>
-        
-    
-</header>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { HttpService } from '../services/HttpService';
+import { SessionAuthenticationService } from '../services/SessionAuthenticationService';
+import { BasicResponse } from './ServerResponse';
 
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description">基于本地文件的出站图片</div>
-        
+/**
+ * 群管理工具类
+ * &lt;br>
+ * 通过 {@link MiraiClient#getGroupManager} 获取。
+ *
+ * @since 0.1.4
+ */
+export class GroupManager {
+	/**
+	 * @constructor
+	 * @hideconstructor
+	 */
+	constructor(public readonly groupId: number, private readonly http: HttpService, private readonly auth: SessionAuthenticationService) {
+	}
 
-        
+	/**
+	 * 禁言某人
+	 *
+	 * @param {number} id QQ 号
+	 * @param {number} time 禁言时长，单位为秒，默认为 1 分钟
+	 * @since 0.1.4
+	 */
+	public mute(id: number, time: number = 60) {
+		return this.auth.obtainToken().then(token =>
+			this.http.post&lt;BasicResponse>('/mute', {
+				sessionKey: token,
+				target: this.groupId,
+				memberId: id,
+				time: time,
+			}));
+	}
 
+	/**
+	 * 解除禁言
+	 *
+	 * @param {number} id QQ 号
+	 * @since 0.1.4
+	 */
+	public unmute(id: number) {
+		return this.auth.obtainToken().then(token =>
+			this.http.post&lt;BasicResponse>('/unmute', {
+				sessionKey: token,
+				target: this.groupId,
+				memberId: id,
+			}));
+	}
 
-<dl class="details">
+	/**
+	 * 解除禁言
+	 *
+	 * @param {number} id QQ 号
+	 * @since 0.1.4
+	 */
+	public pardon(id: number) {
+		return this.unmute(id);
+	}
 
-    
+	/**
+	 * 从群中移除某人
+	 *
+	 * @param {number} id QQ 号
+	 * @param {string} msg 踢出原因，默认为空
+	 * @since 0.1.4
+	 */
+	public kick(id: number, msg: string = '') {
+		return this.auth.obtainToken().then(token =>
+			this.http.post&lt;BasicResponse>('/unmute', {
+				sessionKey: token,
+				target: this.groupId,
+				memberId: id,
+				msg: msg
+			}));
+	}
 
-    
+	/**
+	 * 退出此群
+	 *
+	 * @since 0.1.4
+	 */
+	public quit() {
+		return this.auth.obtainToken().then(token =>
+			this.http.post&lt;BasicResponse>('/quit', {
+				sessionKey: token,
+				target: this.groupId,
+			}));
+	}
 
-    
+	/**
+	 * 开启全体禁言
+	 *
+	 * @since 0.1.4
+	 */
+	public muteAll() {
+		return this.auth.obtainToken().then(token =>
+			this.http.post&lt;BasicResponse>('/muteAll', {
+				sessionKey: token,
+				target: this.groupId,
+			}));
+	}
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="src_objects_Message.ts.html" class="button">View Source</a>
-            <span>
-                <a href="src_objects_Message.ts.html">src/objects/Message.ts</a>, <a href="src_objects_Message.ts.html#line307">line 307</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-        
-    
-    </div>
-    
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+	/**
+	 * 关闭全体禁言
+	 *
+	 * @since 0.1.4
+	 */
+	public unmuteAll() {
+		return this.auth.obtainToken().then(token =>
+			this.http.post&lt;BasicResponse>('/unmuteAll', {
+				sessionKey: token,
+				target: this.groupId,
+			}));
+	}
+}
+</code></pre>
+        </article>
+    </section>
 
 
 

@@ -68,7 +68,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="InboundMessage.html">InboundMessage</a></li><li><a href="MiraiClient.html">MiraiClient</a></li><li><a href="OutboundMessageChain.html">OutboundMessageChain</a></li></ul><h3>Interfaces</h3><ul><li><a href="AccountConfig.html">AccountConfig</a></li><li><a href="AppMessage.html">AppMessage</a></li><li><a href="Config.html">Config</a></li><li><a href="ConnectionConfig.html">ConnectionConfig</a></li><li><a href="Emoticon.html">Emoticon</a></li><li><a href="Group.html">Group</a></li><li><a href="GroupMessageSender.html">GroupMessageSender</a></li><li><a href="IdBasedOutboundImage.html">IdBasedOutboundImage</a></li><li><a href="IdBasedOutboundVoice.html">IdBasedOutboundVoice</a></li><li><a href="Image.html">Image</a></li><li><a href="InteractMessage.html">InteractMessage</a></li><li><a href="JsonMessage.html">JsonMessage</a></li><li><a href="LocalFileBasedOutboundVoice.html">LocalFileBasedOutboundVoice</a></li><li><a href="LocalImageBasedOutboundImage.html">LocalImageBasedOutboundImage</a></li><li><a href="Mention.html">Mention</a></li><li><a href="MentionAll.html">MentionAll</a></li><li><a href="Message.html">Message</a></li><li><a href="MessageContent.html">MessageContent</a></li><li><a href="MessageHeader.html">MessageHeader</a></li><li><a href="MessageSender.html">MessageSender</a></li><li><a href="OutboundImage.html">OutboundImage</a></li><li><a href="OutboundVoice.html">OutboundVoice</a></li><li><a href="PlainText.html">PlainText</a></li><li><a href="PrivateMessageSender.html">PrivateMessageSender</a></li><li><a href="Quote.html">Quote</a></li><li><a href="UrlBasedOutboundImage.html">UrlBasedOutboundImage</a></li><li><a href="UrlBasedOutboundVoice.html">UrlBasedOutboundVoice</a></li><li><a href="Voice.html">Voice</a></li><li><a href="XmlMessage.html">XmlMessage</a></li></ul><h3>Global</h3><ul><li><a href="global.html#GroupPermission">GroupPermission</a></li><li><a href="global.html#InteractMessageType">InteractMessageType</a></li><li><a href="global.html#MessageContentType">MessageContentType</a></li><li><a href="global.html#MessageType">MessageType</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="GroupManager.html">GroupManager</a></li><li><a href="InboundMessage.html">InboundMessage</a></li><li><a href="MiraiClient.html">MiraiClient</a></li><li><a href="OutboundMessageChain.html">OutboundMessageChain</a></li></ul><h3>Interfaces</h3><ul><li><a href="AccountConfig.html">AccountConfig</a></li><li><a href="AppMessage.html">AppMessage</a></li><li><a href="Config.html">Config</a></li><li><a href="ConnectionConfig.html">ConnectionConfig</a></li><li><a href="Emoticon.html">Emoticon</a></li><li><a href="Friend.html">Friend</a></li><li><a href="Group.html">Group</a></li><li><a href="GroupMessageSender.html">GroupMessageSender</a></li><li><a href="IdBasedOutboundImage.html">IdBasedOutboundImage</a></li><li><a href="IdBasedOutboundVoice.html">IdBasedOutboundVoice</a></li><li><a href="Image.html">Image</a></li><li><a href="InteractMessage.html">InteractMessage</a></li><li><a href="JsonMessage.html">JsonMessage</a></li><li><a href="LocalFileBasedOutboundVoice.html">LocalFileBasedOutboundVoice</a></li><li><a href="LocalImageBasedOutboundImage.html">LocalImageBasedOutboundImage</a></li><li><a href="Mention.html">Mention</a></li><li><a href="MentionAll.html">MentionAll</a></li><li><a href="Message.html">Message</a></li><li><a href="MessageContent.html">MessageContent</a></li><li><a href="MessageHeader.html">MessageHeader</a></li><li><a href="MessageSender.html">MessageSender</a></li><li><a href="OutboundImage.html">OutboundImage</a></li><li><a href="OutboundVoice.html">OutboundVoice</a></li><li><a href="PlainText.html">PlainText</a></li><li><a href="PrivateMessageSender.html">PrivateMessageSender</a></li><li><a href="Quote.html">Quote</a></li><li><a href="UrlBasedOutboundImage.html">UrlBasedOutboundImage</a></li><li><a href="UrlBasedOutboundVoice.html">UrlBasedOutboundVoice</a></li><li><a href="Voice.html">Voice</a></li><li><a href="XmlMessage.html">XmlMessage</a></li></ul><h3>Global</h3><ul><li><a href="global.html#GroupPermission">GroupPermission</a></li><li><a href="global.html#InteractMessageType">InteractMessageType</a></li><li><a href="global.html#MessageContentType">MessageContentType</a></li><li><a href="global.html#MessageType">MessageType</a></li><li><a href="global.html#StatusCode">StatusCode</a></li><li><a href="global.html#StatusCode%255Bundefined%255D">StatusCode[undefined]</a></li></ul></div>
                 
             </nav>
         </div>
@@ -93,6 +93,11 @@ import { SessionAuthenticationService } from './src/services/SessionAuthenticati
 import { WebSocketService } from './src/services/WebSocketService';
 import { InboundMessagingService } from './src/services/InboundMessagingService';
 import { OutboundMessagingService } from './src/services/OutboundMessagingService';
+import { Friend } from './src/objects/Friend';
+import { FriendListingResponse, GroupListingResponse, GroupMemberListingResponse } from './src/objects/ServerResponse';
+import { Group } from './src/objects/Message';
+import { GroupMember } from './src/objects/GroupMember';
+import { GroupManager } from './src/objects/GroupManager';
 
 export interface MiraiClient extends EventEmitter {
 	on(type: 'connect', cb: () => void): this;
@@ -128,6 +133,65 @@ export class MiraiClient extends EventEmitter {
 		}
 	}
 
+	/**
+	 * 等待机器人就绪
+	 * &lt;br>
+	 * 这个函数存在的意义只是为了好看，或者说允许 `await` 机器人就绪。
+	 * 它并没有特殊的用途，你也不需要等待机器人就绪后再注册回调函数。
+	 *
+	 * @since 0.1.4
+	 */
+	public waitForReady(): Promise&lt;void> {
+		return this.auth.obtainToken().then(() => {});
+	}
+
+	/**
+	 * 获取好友列表
+	 *
+	 * @since 0.1.4
+	 */
+	public getFriendList(): Promise&lt;Friend[]> {
+		return this.auth.obtainToken().then(token =>
+			this.http.get&lt;FriendListingResponse>('/friendList', {
+				sessionKey: token,
+			})).then(x => x.data);
+	}
+
+	/**
+	 * 获取群列表
+	 *
+	 * @since 0.1.4
+	 */
+	public getGroupList(): Promise&lt;Group[]> {
+		return this.auth.obtainToken().then(token =>
+			this.http.get&lt;GroupListingResponse>('/groupList', {
+				sessionKey: token,
+			}).then(x => x.data));
+	}
+
+	/**
+	 * 获取群成员列表
+	 *
+	 * @param {number} groupId 群号
+	 * @since 0.1.4
+	 */
+	public getMembersOfGroup(groupId: number): Promise&lt;GroupMember[]> {
+		return this.auth.obtainToken().then(token =>
+			this.http.get&lt;GroupMemberListingResponse>('/memberList', {
+				sessionKey: token,
+				target: groupId,
+			}).then(x => x.data));
+	}
+
+	/**
+	 * 获取群管理工具
+	 *
+	 * @param {number} groupId 群号
+	 */
+	public getGroupManager(groupId: number): GroupManager {
+		return new GroupManager(groupId, this.http, this.auth);
+	}
+
 	public close() {
 		this.ws?.close();
 		this.inbound?.close();
@@ -143,8 +207,7 @@ export class MiraiClient extends EventEmitter {
 
 /* Re-exporting necessary stuff */
 
-export { Config };
-export { InboundMessage };
+export { Config, InboundMessage, Friend, GroupManager };
 export * as Message from './src/objects/Message';
 export { OutboundMessageChain } from './src/objects/OutboundMessageChain';
 export { StatusCode } from './src/objects/StatusCode';

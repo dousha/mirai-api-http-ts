@@ -66,7 +66,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="InboundMessage.html">InboundMessage</a></li><li><a href="MiraiClient.html">MiraiClient</a></li><li><a href="OutboundMessageChain.html">OutboundMessageChain</a></li></ul><h3>Interfaces</h3><ul><li><a href="AccountConfig.html">AccountConfig</a></li><li><a href="AppMessage.html">AppMessage</a></li><li><a href="Config.html">Config</a></li><li><a href="ConnectionConfig.html">ConnectionConfig</a></li><li><a href="Emoticon.html">Emoticon</a></li><li><a href="Group.html">Group</a></li><li><a href="GroupMessageSender.html">GroupMessageSender</a></li><li><a href="IdBasedOutboundImage.html">IdBasedOutboundImage</a></li><li><a href="IdBasedOutboundVoice.html">IdBasedOutboundVoice</a></li><li><a href="Image.html">Image</a></li><li><a href="InteractMessage.html">InteractMessage</a></li><li><a href="JsonMessage.html">JsonMessage</a></li><li><a href="LocalFileBasedOutboundVoice.html">LocalFileBasedOutboundVoice</a></li><li><a href="LocalImageBasedOutboundImage.html">LocalImageBasedOutboundImage</a></li><li><a href="Mention.html">Mention</a></li><li><a href="MentionAll.html">MentionAll</a></li><li><a href="Message.html">Message</a></li><li><a href="MessageContent.html">MessageContent</a></li><li><a href="MessageHeader.html">MessageHeader</a></li><li><a href="MessageSender.html">MessageSender</a></li><li><a href="OutboundImage.html">OutboundImage</a></li><li><a href="OutboundVoice.html">OutboundVoice</a></li><li><a href="PlainText.html">PlainText</a></li><li><a href="PrivateMessageSender.html">PrivateMessageSender</a></li><li><a href="Quote.html">Quote</a></li><li><a href="UrlBasedOutboundImage.html">UrlBasedOutboundImage</a></li><li><a href="UrlBasedOutboundVoice.html">UrlBasedOutboundVoice</a></li><li><a href="Voice.html">Voice</a></li><li><a href="XmlMessage.html">XmlMessage</a></li></ul><h3>Global</h3><ul><li><a href="global.html#GroupPermission">GroupPermission</a></li><li><a href="global.html#InteractMessageType">InteractMessageType</a></li><li><a href="global.html#MessageContentType">MessageContentType</a></li><li><a href="global.html#MessageType">MessageType</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="GroupManager.html">GroupManager</a></li><li><a href="InboundMessage.html">InboundMessage</a></li><li><a href="MiraiClient.html">MiraiClient</a></li><li><a href="OutboundMessageChain.html">OutboundMessageChain</a></li></ul><h3>Interfaces</h3><ul><li><a href="AccountConfig.html">AccountConfig</a></li><li><a href="AppMessage.html">AppMessage</a></li><li><a href="Config.html">Config</a></li><li><a href="ConnectionConfig.html">ConnectionConfig</a></li><li><a href="Emoticon.html">Emoticon</a></li><li><a href="Friend.html">Friend</a></li><li><a href="Group.html">Group</a></li><li><a href="GroupMessageSender.html">GroupMessageSender</a></li><li><a href="IdBasedOutboundImage.html">IdBasedOutboundImage</a></li><li><a href="IdBasedOutboundVoice.html">IdBasedOutboundVoice</a></li><li><a href="Image.html">Image</a></li><li><a href="InteractMessage.html">InteractMessage</a></li><li><a href="JsonMessage.html">JsonMessage</a></li><li><a href="LocalFileBasedOutboundVoice.html">LocalFileBasedOutboundVoice</a></li><li><a href="LocalImageBasedOutboundImage.html">LocalImageBasedOutboundImage</a></li><li><a href="Mention.html">Mention</a></li><li><a href="MentionAll.html">MentionAll</a></li><li><a href="Message.html">Message</a></li><li><a href="MessageContent.html">MessageContent</a></li><li><a href="MessageHeader.html">MessageHeader</a></li><li><a href="MessageSender.html">MessageSender</a></li><li><a href="OutboundImage.html">OutboundImage</a></li><li><a href="OutboundVoice.html">OutboundVoice</a></li><li><a href="PlainText.html">PlainText</a></li><li><a href="PrivateMessageSender.html">PrivateMessageSender</a></li><li><a href="Quote.html">Quote</a></li><li><a href="UrlBasedOutboundImage.html">UrlBasedOutboundImage</a></li><li><a href="UrlBasedOutboundVoice.html">UrlBasedOutboundVoice</a></li><li><a href="Voice.html">Voice</a></li><li><a href="XmlMessage.html">XmlMessage</a></li></ul><h3>Global</h3><ul><li><a href="global.html#GroupPermission">GroupPermission</a></li><li><a href="global.html#InteractMessageType">InteractMessageType</a></li><li><a href="global.html#MessageContentType">MessageContentType</a></li><li><a href="global.html#MessageType">MessageType</a></li><li><a href="global.html#StatusCode">StatusCode</a></li><li><a href="global.html#StatusCode%255Bundefined%255D">StatusCode[undefined]</a></li></ul></div>
                 
             </nav>
         </div>
@@ -98,6 +98,57 @@
 
 
 
+
+    <section>
+        <article><h1><code>mirai-api-http-ts</code> - 简单而符合直觉的 <code>mira-api-http</code> TypeScript 封装</h1>
+<p>简体中文 | <a href="README.md">English</a></p>
+<p>注意：这个项目正在活跃开发。我们会尽力保持向下兼容性，但不兼容的更改可能随时被引入。我们使用<a href="https://semver.org/lang/zh-CN/">语义化版本号</a>作为兼容性参考。</p>
+<h2>动机</h2>
+<p>我寻思着得有一个简单的 <code>mirai-api-http</code> 的 TypeScript 库。</p>
+<h2>用法</h2>
+<p>获取这个库：</p>
+<pre class="prettyprint source"><code>$ yarn add @dousha99/mirai-api-http-ts
+- 或者 -
+$ npm i --save @dousha99/mirai-api-http-ts
+</code></pre>
+<p>文档啊，文档<a href="https://dousha.github.io/mirai-api-http-ts">在写了</a>（指新建 <code>gh-pages</code>）。</p>
+<h2>样例</h2>
+<p>简单的复读机：</p>
+<pre class="prettyprint source lang-ts"><code>import { MiraiClient, OutboundMessageChiain, Message } from '@dousha99/mirai-api-http-ts';
+
+const mirai = new MiraiClient({
+	connection: {
+		tls: false,
+		host: 'localhost',
+		httpPort: 8080,
+		websocketPort: 8080,
+		useWebsocket: true,
+		pollPeriod: 5000,
+		pollCount: 5,
+	},
+	account: {
+		authKey: process.env['AUTH_KEY']!,
+		account: Number(process.env['QQ']!),
+	},
+});
+
+mirai.on('message', msg => {
+	if (msg.message.type === Message.MessageType.FRIEND_MESSAGE) {
+		if (msg.isPlainTextMessage()) {
+			const text = msg.getPlainText();
+			msg.reply(OutboundMessageChain.ofText(text)).catch(e => console.error(e));
+			if (text.trim() === 'stophammertime') {
+				mirai.close();
+			}
+		}
+	}
+});
+
+mirai.on('connect', () => {
+	console.log('Ready');
+});
+</code></pre></article>
+    </section>
 
 
 
