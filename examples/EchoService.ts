@@ -23,7 +23,7 @@ mirai.on(MessageType.GROUP_MESSAGE, msg => {
 
 mirai.on(MessageType.FRIEND_MESSAGE, msg => {
 	msg.reply(OutboundMessageChain.ofText(msg.extractText())).catch(console.error);
-})
+});
 
 mirai.on('connect', () => {
 	console.log('Ready');
