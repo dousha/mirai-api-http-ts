@@ -12,13 +12,22 @@ import { GroupMember } from './src/objects/GroupMember';
 import { GroupManager } from './src/objects/GroupManager';
 import { Group } from './src/objects/Group';
 import { Event } from './src/objects/Event';
+import { Message, MessageTypeLut } from './src/objects/Message';
+import { RequestBase, RequestConstructorLut, RequestTypeLut } from './src/objects/Request';
+import { isEvent, isMessage, isRequest } from './src/utils/TypeUtils';
 
 export interface MiraiClient extends EventEmitter {
 	on(type: 'connect', cb: () => void): this;
 
-	on(type: 'message', cb: (msg: InboundMessage) => void): this;
+	on(type: 'message', cb: (msg: InboundMessage<Message>) => void): this;
+
+	on<U extends keyof MessageTypeLut>(type: U, cb: (msg: InboundMessage<MessageTypeLut[U]>) => void): this;
 
 	on(type: 'event', cb: (ev: Event) => void): this;
+
+	on(type: 'request', cb: (ev: RequestBase) => void): this;
+
+	on<U extends keyof RequestTypeLut>(type: U, cb: (req: RequestTypeLut[U]) => void): this;
 
 	on(type: 'error', cb: (err?: Error) => void): this;
 }
@@ -42,19 +51,10 @@ export class MiraiClient extends EventEmitter {
 		});
 		if (config.connection.useWebsocket) {
 			this.ws = new WebSocketService(config.connection, this.auth, this.out);
-			this.ws.on('message', m => {
-				this.emit('message', m);
-				// TODO: make things more granular
-			}).on('event', e => {
-				this.emit('event', e);
-				// TODO: ditto
-			}).on('error', e => {
-				this.emit('error', e);
-			});
+			this.ws.on('message', obj => this.processMessage(obj)).on('error', e => this.emit('error', e));
 		} else {
 			this.inbound = new InboundMessagingService(config.connection, this.auth, this.out, this.http);
-			this.inbound.on('message', m => this.emit('message', m))
-				.on('error', e => this.emit('error', e));
+			this.inbound.on('message', m => this.processMessage(m)).on('error', e => this.emit('error', e));
 		}
 	}
 
@@ -129,6 +129,24 @@ export class MiraiClient extends EventEmitter {
 		this.auth.close().catch(console.error);
 	}
 
+	private processMessage(obj: unknown) {
+		if (isMessage(obj)) {
+			const inboundMsg = new InboundMessage(obj, this.out);
+			this.emit('message', inboundMsg);
+			this.emit(obj.type, inboundMsg);
+		} else if (isEvent(obj)) {
+			this.emit('event', obj);
+			// TODO: make events more granular
+			if (isRequest(obj)) {
+				this.emit('request', obj);
+				const cons = RequestConstructorLut[obj.type];
+				this.emit(obj.type, new cons(this.auth, this.http, obj));
+			}
+		} else {
+			console.warn(`Received unknown type of message: ${JSON.stringify(obj)}`);
+		}
+	}
+
 	private readonly http: HttpService;
 	private readonly auth: SessionAuthenticationService;
 	private readonly out: OutboundMessagingService;
@@ -138,7 +156,11 @@ export class MiraiClient extends EventEmitter {
 
 /* Re-exporting necessary stuff */
 
-export { Config, InboundMessage, Friend, GroupManager, Group, GroupMember, Event };
+export { Config, InboundMessage, Friend, GroupManager, Group, GroupMember, Event, FriendListingResponse, GroupListingResponse, GroupMemberListingResponse };
 export * as Message from './src/objects/Message';
+export { MessageType, FriendMessage, GroupMessage, TempMessage } from './src/objects/Message';
+export { EventType, BotEventType, RequestType, GroupMemberEventType, GroupPolicyEventType, MessageEventType } from './src/objects/Event';
+export * as Events from './src/objects/Event';
+export { RequestBase, GroupJoinRequest, GroupInviteRequest, FriendRequest } from './src/objects/Request';
 export { OutboundMessageChain } from './src/objects/OutboundMessageChain';
 export { StatusCode } from './src/objects/StatusCode';

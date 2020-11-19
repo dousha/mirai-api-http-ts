@@ -3,10 +3,10 @@ import { GroupPermission } from './GroupPermission';
 
 /**
  * 事件类型
- *
- * @enum {string}
  */
-export enum EventType {
+export type EventType = BotEventType | MessageEventType | GroupPolicyEventType | GroupMemberEventType | RequestType;
+
+export enum BotEventType {
 	BOT_ONLINE = 'BotOnlineEvent',
 	BOT_OFFLINE = 'BotOfflineEventActive',
 	BOT_OFFLINE_FORCED = 'BotOfflineEventForce',
@@ -18,19 +18,26 @@ export enum EventType {
 	BOT_GROUP_JOINED = 'BotJoinGroupEvent',
 	BOT_GROUP_PARTED = 'BotLeaveEventActive',
 	BOT_GROUP_KICKED = 'BotLeaveEventKick',
+	BOT_CONNECTIVITY_CHANGED = 'BotConnectivityChangedEvent'
+}
 
+export enum MessageEventType {
 	GROUP_MESSAGE_RECALL = 'GroupRecallEvent',
 	GROUP_MESSAGE_REVOKE = 'GroupRecallEvent',
 	FRIEND_MESSAGE_RECALL = 'FriendRecallEvent',
 	FRIEND_MESSAGE_REVOKE = 'FriendRecallEvent',
+}
 
+export enum GroupPolicyEventType {
 	GROUP_NAMED_CHANGED = 'GroupNameChangeEvent',
 	GROUP_ANNOUNCEMENT_CHANGED = 'GroupEntranceAnnouncementChangeEvent',
 	GROUP_MUTE_CHANGED = 'GroupMuteAllEvent',
 	GROUP_ANONYMOUS_CHAT_POLICY_CHANGED = 'GroupAllowAnonymousChatEvent',
 	GROUP_CONFESS_TALK_POLICY_CHANGED = 'GroupAllowConfessTalkEvent',
 	GROUP_INVITE_POLICY_CHANGED = 'GroupAllowMemberInviteEvent',
+}
 
+export enum GroupMemberEventType {
 	GROUP_MEMBER_JOINED = 'MemberJoinEvent',
 	GROUP_MEMBER_KICKED = 'MemberLeaveEventKick',
 	GROUP_MEMBER_PARTED = 'MemberLeaveEventQuit',
@@ -39,12 +46,17 @@ export enum EventType {
 	GROUP_MEMBER_PERMISSION_CHANGED = 'MemberPermissionChangeEvent',
 	GROUP_MEMBER_MUTED = 'MemberMuteEvent',
 	GROUP_MEMBER_UNMUTED = 'MemberUnmuteEvent',
+}
 
+/**
+ * 请求事件类型
+ *
+ * @enum {string}
+ */
+export enum RequestType {
 	FRIEND_REQUEST = 'NewFriendRequestEvent',
 	GROUP_JOIN_REQUEST = 'MemberJoinRequestEvent',
-	GROUP_INVITE_REQUEST = 'BotInvitedJoinGroupRequestEvent',
-
-	BOT_CONNECTIVITY_CHANGED = 'BotConnectivityChangedEvent'
+	GROUP_INVITE_REQUEST = 'BotInvitedJoinGroupRequestEvent'
 }
 
 /**
@@ -75,72 +87,73 @@ export interface Event {
 }
 
 export interface BotConnectivityChangeEvent extends Event {
-	type: EventType.BOT_CONNECTIVITY_CHANGED;
+	type: BotEventType.BOT_CONNECTIVITY_CHANGED;
 	qq: number;
 	state: BotConnectivity;
 }
 
 export interface BotConnectivityBaseEvent extends Event {
+	type: BotEventType;
 	qq: number;
 }
 
 export interface BotOnlineEvent extends BotConnectivityBaseEvent {
-	type: EventType.BOT_ONLINE;
+	type: BotEventType.BOT_ONLINE;
 }
 
 export interface BotOfflineEvent extends BotConnectivityBaseEvent {
-	type: EventType.BOT_OFFLINE;
+	type: BotEventType.BOT_OFFLINE;
 }
 
 export interface BotForcedOfflineEvent extends BotConnectivityBaseEvent {
-	type: EventType.BOT_OFFLINE_FORCED;
+	type: BotEventType.BOT_OFFLINE_FORCED;
 }
 
 export interface BotDisconnectedOfflineEvent extends BotConnectivityBaseEvent {
-	type: EventType.BOT_OFFLINE_DISCONNECTED;
+	type: BotEventType.BOT_OFFLINE_DISCONNECTED;
 }
 
 export interface BotReloginEvent extends BotConnectivityBaseEvent {
-	type: EventType.BOT_RELOGIN;
+	type: BotEventType.BOT_RELOGIN;
 }
 
 export interface BotPermissionChangedEvent extends Event {
-	type: EventType.BOT_PERMISSION_CHANGED;
+	type: BotEventType.BOT_PERMISSION_CHANGED;
 	origin: GroupPermission;
 	current: GroupPermission;
 	group: Group;
 }
 
 export interface BotMutedEvent extends Event {
-	type: EventType.BOT_MUTED;
+	type: BotEventType.BOT_MUTED;
 	durationSeconds: number;
 	operator: Operator;
 }
 
 export interface BotUnmutedEvent extends Event {
-	type: EventType.BOT_UNMUTED;
+	type: BotEventType.BOT_UNMUTED;
 	operator: Operator;
 }
 
 export interface BotGroupBaseEvent extends Event {
-	type: EventType;
+	type: BotEventType;
 	group: Group;
 }
 
 export interface BotJoinedGroupEvent extends BotGroupBaseEvent {
-	type: EventType.BOT_GROUP_JOINED;
+	type: BotEventType.BOT_GROUP_JOINED;
 }
 
 export interface BotPartedGroupEvent extends BotGroupBaseEvent {
-	type: EventType.BOT_GROUP_PARTED;
+	type: BotEventType.BOT_GROUP_PARTED;
 }
 
 export interface BotKickedFromGroupEvent extends BotGroupBaseEvent {
-	type: EventType.BOT_GROUP_KICKED;
+	type: BotEventType.BOT_GROUP_KICKED;
 }
 
 export interface GroupMessageRevokedEvent extends Event {
-	type: EventType.GROUP_MESSAGE_REVOKE;
+	type: MessageEventType.GROUP_MESSAGE_REVOKE;
 	authorId: number;
 	messageId: number;
 	time: number;
@@ -149,7 +162,7 @@ export interface GroupMessageRevokedEvent extends Event {
 }
 
 export interface FriendMessageRevokedEvent extends Event {
-	type: EventType.FRIEND_MESSAGE_REVOKE;
+	type: MessageEventType.FRIEND_MESSAGE_REVOKE;
 	authorId: number;
 	messageId: number;
 	time: number;
@@ -157,7 +170,7 @@ export interface FriendMessageRevokedEvent extends Event {
 }
 
 export interface GroupPolicyChangedEvent extends Event {
-	type: EventType;
+	type: GroupPolicyEventType;
 	origin: any;
 	current: any;
 	group: Group;
@@ -175,31 +188,31 @@ export interface GroupBinaryPolicyChangedEvent extends GroupPolicyChangedEvent {
 }
 
 export interface GroupNameChangedEvent extends GroupStringPolicyChangedEvent {
-	type: EventType.GROUP_NAMED_CHANGED;
+	type: GroupPolicyEventType.GROUP_NAMED_CHANGED;
 }
 
 export interface GroupAnnouncementChangedEvent extends GroupStringPolicyChangedEvent {
-	type: EventType.GROUP_ANNOUNCEMENT_CHANGED;
+	type: GroupPolicyEventType.GROUP_ANNOUNCEMENT_CHANGED;
 }
 
 export interface GroupChatPolicyChangedEvent extends GroupBinaryPolicyChangedEvent {
-	type: EventType.GROUP_MUTE_CHANGED;
+	type: GroupPolicyEventType.GROUP_MUTE_CHANGED;
 }
 
 export interface GroupAnonymousChatPolicyChangedEvent extends GroupBinaryPolicyChangedEvent {
-	type: EventType.GROUP_ANONYMOUS_CHAT_POLICY_CHANGED;
+	type: GroupPolicyEventType.GROUP_ANONYMOUS_CHAT_POLICY_CHANGED;
 }
 
 export interface GroupConfessTalkPolicyChangedEvent extends GroupBinaryPolicyChangedEvent {
-	type: EventType.GROUP_CONFESS_TALK_POLICY_CHANGED;
+	type: GroupPolicyEventType.GROUP_CONFESS_TALK_POLICY_CHANGED;
 }
 
 export interface GroupInvitePolicyChangedEvent extends GroupBinaryPolicyChangedEvent {
-	type: EventType.GROUP_INVITE_POLICY_CHANGED;
+	type: GroupPolicyEventType.GROUP_INVITE_POLICY_CHANGED;
 }
 
 export interface GroupMemberBaseEvent extends Event {
-	type: EventType;
+	type: GroupMemberEventType;
 	member: {
 		id: number;
 		memberName: string;
@@ -209,44 +222,44 @@ export interface GroupMemberBaseEvent extends Event {
 }
 
 export interface GroupMemberJoinedEvent extends GroupMemberBaseEvent {
-	type: EventType.GROUP_MEMBER_JOINED;
+	type: GroupMemberEventType.GROUP_MEMBER_JOINED;
 }
 
 export interface GroupMemberKickedEvent extends GroupMemberBaseEvent {
-	type: EventType.GROUP_MEMBER_KICKED;
+	type: GroupMemberEventType.GROUP_MEMBER_KICKED;
 	operator: Operator;
 }
 
 export interface GroupMemberPartedEvent extends GroupMemberBaseEvent {
-	type: EventType.GROUP_MEMBER_PARTED;
+	type: GroupMemberEventType.GROUP_MEMBER_PARTED;
 }
 
 export interface GroupMemberNameChangedEvent extends GroupMemberBaseEvent {
-	type: EventType.GROUP_MEMBER_RENAMED;
+	type: GroupMemberEventType.GROUP_MEMBER_RENAMED;
 	origin: string;
 	current: string;
 	operator: Operator;
 }
 
 export interface GroupMemberTitleChangedEvent extends GroupMemberBaseEvent {
-	type: EventType.GROUP_MEMBER_TITLE_CHANGED;
+	type: GroupMemberEventType.GROUP_MEMBER_TITLE_CHANGED;
 	origin: string;
 	current: string;
 }
 
 export interface GroupMemberPermissionChangedEvent extends GroupMemberBaseEvent {
-	type: EventType.GROUP_MEMBER_PERMISSION_CHANGED;
+	type: GroupMemberEventType.GROUP_MEMBER_PERMISSION_CHANGED;
 	origin: GroupPermission;
 	current: GroupPermission;
 }
 
 export interface GroupMemberMutedEvent extends GroupMemberBaseEvent {
-	type: EventType.GROUP_MEMBER_MUTED;
+	type: GroupMemberEventType.GROUP_MEMBER_MUTED;
 	durationSeconds: number;
 	operator: Operator;
 }
 
 export interface GroupMemberUnmutedEvent extends GroupMemberBaseEvent {
-	type: EventType.GROUP_MEMBER_UNMUTED;
+	type: GroupMemberEventType.GROUP_MEMBER_UNMUTED;
 	operator: Operator;
 }

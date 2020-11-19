@@ -1,4 +1,4 @@
-import { Mention, MessageContent, MessageContentType, PlainText, UrlBasedOutboundImage } from './Message';
+import { Mention, Message, MessageContent, MessageContentType, PlainText, UrlBasedOutboundImage } from './Message';
 import { TODO } from '../utils/TodoUtils';
 
 /**
@@ -98,6 +98,18 @@ export class OutboundMessageChain {
 			display: '', // 出站时忽略
 		};
 		out.append(obj);
+		return out;
+	}
+
+	/**
+	 * 从入站消息构建消息链。
+	 *
+	 * @param {Message} msg 入站消息
+	 * @since 0.1.6
+	 */
+	public static ofMessage(msg: Message): OutboundMessageChain {
+		const out = new OutboundMessageChain();
+		out.content = msg.messageChain;
 		return out;
 	}
 

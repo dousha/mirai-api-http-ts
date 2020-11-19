@@ -1,5 +1,6 @@
 import { Message } from '../objects/Message';
-import { Event, EventType } from '../objects/Event';
+import { Event, RequestType } from '../objects/Event';
+import { RequestBase } from '../objects/Request';
 
 export function isMessage(a: unknown): a is Message {
 	/// XXX: TypeScript is not smart enough, using Any type is necessary.
@@ -18,6 +19,9 @@ export function isEvent(a: unknown): a is Event {
 	const cast = <any>a;
 	return typeof cast === 'object'
 		&& 'type' in cast
-		&& typeof cast['type'] === 'string'
-		&& (<any>Object).values(EventType).includes(cast['type']);
+		&& typeof cast['type'] === 'string'; // XXX: too loose
+}
+
+export function isRequest(a: Event): a is RequestBase {
+	return (<any>Object).values(RequestType).includes(a.type);
 }

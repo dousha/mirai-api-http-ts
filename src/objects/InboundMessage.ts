@@ -22,14 +22,14 @@ import { BasicResponse } from './ServerResponse';
 /**
  * 入站消息
  */
-export class InboundMessage {
+export class InboundMessage<T extends Message> {
 	/**
 	 * @constructor
 	 * @hideconstructor
 	 * @param {Message} message 消息
 	 * @param {OutboundMessagingService} srvc 发送服务
 	 */
-	constructor(public readonly message: Message, private readonly srvc: OutboundMessagingService) {
+	constructor(public readonly message: T, private readonly srvc: OutboundMessagingService) {
 	}
 
 	/**
@@ -238,14 +238,6 @@ export class InboundMessage {
 	 * @since 0.0.1
 	 */
 	public get sender() {
-		switch (this.message.type) {
-			case MessageType.FRIEND_MESSAGE:
-				return this.message.sender as PrivateMessageSender;
-			case MessageType.TEMP_MESSAGE:
-			case MessageType.GROUP_MESSAGE:
-				return this.message.sender as GroupMessageSender;
-			default:
-				throw new Error('Unknown message type ' + this.message.type);
-		}
+		return this.message.sender;
 	}
 }

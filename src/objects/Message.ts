@@ -21,6 +21,12 @@ export enum MessageType {
 	TEMP_MESSAGE = 'TempMessage',
 }
 
+export type MessageTypeLut = {
+	[MessageType.GROUP_MESSAGE]: GroupMessage,
+	[MessageType.FRIEND_MESSAGE]: FriendMessage,
+	[MessageType.TEMP_MESSAGE]: TempMessage,
+};
+
 /**
  * 消息发送者
  *
@@ -61,7 +67,7 @@ export interface PrivateMessageSender extends MessageSender {
 }
 
 /**
- * 消息
+ * 消息基类
  */
 export interface Message {
 	/** 类型 */
@@ -70,6 +76,30 @@ export interface Message {
 	messageChain: Array<MessageContent>;
 	/** 消息发送者 */
 	sender: MessageSender;
+}
+
+/**
+ * 群消息
+ */
+export interface GroupMessage extends Message {
+	type: MessageType.GROUP_MESSAGE;
+	sender: GroupMessageSender;
+}
+
+/**
+ * 临时消息
+ */
+export interface TempMessage extends Message {
+	type: MessageType.TEMP_MESSAGE;
+	sender: GroupMessageSender;
+}
+
+/**
+ * 好友消息
+ */
+export interface FriendMessage extends Message {
+	type: MessageType.FRIEND_MESSAGE;
+	sender: PrivateMessageSender;
 }
 
 /**
