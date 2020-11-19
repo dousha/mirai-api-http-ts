@@ -1,7 +1,8 @@
 import { StatusCode } from './StatusCode';
-import { Group, Message } from './Message';
+import { Message } from './Message';
 import { Friend } from './Friend';
 import { GroupMember } from './GroupMember';
+import { Group } from './Group';
 
 export interface BasicResponse {
 	code: StatusCode;

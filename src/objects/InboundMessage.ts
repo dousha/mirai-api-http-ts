@@ -73,7 +73,7 @@ export class InboundMessage {
 			const mentionBlock: Mention = {
 				type: MessageContentType.MENTION,
 				target: sender.id,
-				display: ''
+				display: '',
 			};
 			chain.append(mentionBlock);
 		}

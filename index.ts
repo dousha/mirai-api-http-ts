@@ -8,13 +8,18 @@ import { InboundMessagingService } from './src/services/InboundMessagingService'
 import { OutboundMessagingService } from './src/services/OutboundMessagingService';
 import { Friend } from './src/objects/Friend';
 import { FriendListingResponse, GroupListingResponse, GroupMemberListingResponse } from './src/objects/ServerResponse';
-import { Group } from './src/objects/Message';
 import { GroupMember } from './src/objects/GroupMember';
 import { GroupManager } from './src/objects/GroupManager';
+import { Group } from './src/objects/Group';
+import { Event } from './src/objects/Event';
 
 export interface MiraiClient extends EventEmitter {
 	on(type: 'connect', cb: () => void): this;
+
 	on(type: 'message', cb: (msg: InboundMessage) => void): this;
+
+	on(type: 'event', cb: (ev: Event) => void): this;
+
 	on(type: 'error', cb: (err?: Error) => void): this;
 }
 
@@ -37,8 +42,15 @@ export class MiraiClient extends EventEmitter {
 		});
 		if (config.connection.useWebsocket) {
 			this.ws = new WebSocketService(config.connection, this.auth, this.out);
-			this.ws.on('message', m => this.emit('message', m))
-				.on('error', e => this.emit('error', e));
+			this.ws.on('message', m => {
+				this.emit('message', m);
+				// TODO: make things more granular
+			}).on('event', e => {
+				this.emit('event', e);
+				// TODO: ditto
+			}).on('error', e => {
+				this.emit('error', e);
+			});
 		} else {
 			this.inbound = new InboundMessagingService(config.connection, this.auth, this.out, this.http);
 			this.inbound.on('message', m => this.emit('message', m))
@@ -100,11 +112,17 @@ export class MiraiClient extends EventEmitter {
 	 * 获取群管理工具
 	 *
 	 * @param {number} groupId 群号
+	 * @since 0.1.4
 	 */
 	public getGroupManager(groupId: number): GroupManager {
 		return new GroupManager(groupId, this.http, this.auth);
 	}
 
+	/**
+	 * 停止服务
+	 *
+	 * @since 0.0.1
+	 */
 	public close() {
 		this.ws?.close();
 		this.inbound?.close();
@@ -120,7 +138,7 @@ export class MiraiClient extends EventEmitter {
 
 /* Re-exporting necessary stuff */
 
-export { Config, InboundMessage, Friend, GroupManager };
+export { Config, InboundMessage, Friend, GroupManager, Group, GroupMember, Event };
 export * as Message from './src/objects/Message';
 export { OutboundMessageChain } from './src/objects/OutboundMessageChain';
 export { StatusCode } from './src/objects/StatusCode';

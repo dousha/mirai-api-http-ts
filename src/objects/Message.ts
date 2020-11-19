@@ -4,6 +4,14 @@
  * @readonly
  * @enum {string}
  */
+import { Group } from './Group';
+import { GroupPermission } from './GroupPermission';
+
+/**
+ * 消息类型
+ *
+ * @enum
+ */
 export enum MessageType {
 	/** 群消息 */
 	GROUP_MESSAGE = 'GroupMessage',
@@ -24,35 +32,6 @@ export enum MessageType {
 export interface MessageSender {
 	/** 发送者的 QQ 号 */
 	id: number;
-}
-
-/**
- * 群成员权限
- *
- * @enum {string}
- * @readonly
- */
-export enum GroupPermission {
-	/** 群员 */
-	MEMBER = 'MEMBER',
-	/** 管理员 */
-	ADMINISTRATOR = 'ADMINISTRATOR',
-	/** 管理员 */
-	ADMIN = 'ADMINISTRATOR',
-	/** 群主 */
-	OWNER = 'OWNER'
-}
-
-/**
- * 群标识符
- */
-export interface Group {
-	/** 群号 */
-	id: number;
-	/** 群名 */
-	name: string;
-	/** 机器人的权限 */
-	permission: GroupPermission;
 }
 
 /**

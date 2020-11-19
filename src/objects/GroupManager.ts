@@ -72,7 +72,7 @@ export class GroupManager {
 				sessionKey: token,
 				target: this.groupId,
 				memberId: id,
-				msg: msg
+				msg: msg,
 			}));
 	}
 
