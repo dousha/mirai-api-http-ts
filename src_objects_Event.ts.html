@@ -7,7 +7,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> src/objects/Message.ts</title>
+  <title> src/objects/Event.ts</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -76,7 +76,7 @@
             <div class="content">
                 <header class="page-title">
                     <p>Source</p>
-                    <h1>src/objects/Message.ts</h1>
+                    <h1>src/objects/Event.ts</h1>
                 </header>
                 
 
@@ -85,353 +85,257 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * 基本消息类型
- *
- * @readonly
- * @enum {string}
- */
-import { Group } from './Group';
+            <pre class="prettyprint source linenums"><code>import { Group } from './Group';
 import { GroupPermission } from './GroupPermission';
 
 /**
- * 消息类型
+ * 事件类型
  *
- * @enum
+ * @enum {string}
  */
-export enum MessageType {
-	/** 群消息 */
-	GROUP_MESSAGE = 'GroupMessage',
-	/** 好友消息 */
-	FRIEND_MESSAGE = 'FriendMessage',
-	/** 临时会话 */
-	TEMP_MESSAGE = 'TempMessage',
+export enum EventType {
+	BOT_ONLINE = 'BotOnlineEvent',
+	BOT_OFFLINE = 'BotOfflineEventActive',
+	BOT_OFFLINE_FORCED = 'BotOfflineEventForce',
+	BOT_OFFLINE_DISCONNECTED = 'BotOfflineEventDropped',
+	BOT_RELOGIN = 'BotReloginEvent',
+	BOT_PERMISSION_CHANGED = 'BotGroupPermissionChangeEvent',
+	BOT_MUTED = 'BotMuteEvent',
+	BOT_UNMUTED = 'BotUnmuteEvent',
+	BOT_GROUP_JOINED = 'BotJoinGroupEvent',
+	BOT_GROUP_PARTED = 'BotLeaveEventActive',
+	BOT_GROUP_KICKED = 'BotLeaveEventKick',
+
+	GROUP_MESSAGE_RECALL = 'GroupRecallEvent',
+	GROUP_MESSAGE_REVOKE = 'GroupRecallEvent',
+	FRIEND_MESSAGE_RECALL = 'FriendRecallEvent',
+	FRIEND_MESSAGE_REVOKE = 'FriendRecallEvent',
+
+	GROUP_NAMED_CHANGED = 'GroupNameChangeEvent',
+	GROUP_ANNOUNCEMENT_CHANGED = 'GroupEntranceAnnouncementChangeEvent',
+	GROUP_MUTE_CHANGED = 'GroupMuteAllEvent',
+	GROUP_ANONYMOUS_CHAT_POLICY_CHANGED = 'GroupAllowAnonymousChatEvent',
+	GROUP_CONFESS_TALK_POLICY_CHANGED = 'GroupAllowConfessTalkEvent',
+	GROUP_INVITE_POLICY_CHANGED = 'GroupAllowMemberInviteEvent',
+
+	GROUP_MEMBER_JOINED = 'MemberJoinEvent',
+	GROUP_MEMBER_KICKED = 'MemberLeaveEventKick',
+	GROUP_MEMBER_PARTED = 'MemberLeaveEventQuit',
+	GROUP_MEMBER_RENAMED = 'MemberCardChangeEvent',
+	GROUP_MEMBER_TITLE_CHANGED = 'MemberSpecialTitleChangeEvent',
+	GROUP_MEMBER_PERMISSION_CHANGED = 'MemberPermissionChangeEvent',
+	GROUP_MEMBER_MUTED = 'MemberMuteEvent',
+	GROUP_MEMBER_UNMUTED = 'MemberUnmuteEvent',
+
+	FRIEND_REQUEST = 'NewFriendRequestEvent',
+	GROUP_JOIN_REQUEST = 'MemberJoinRequestEvent',
+	GROUP_INVITE_REQUEST = 'BotInvitedJoinGroupRequestEvent',
+
+	BOT_CONNECTIVITY_CHANGED = 'BotConnectivityChangedEvent'
 }
 
 /**
- * 消息发送者
- *
- * 消息发送者取决于{@link MessageType 消息类型}会被细化为更多子类型。
- *
- * @see GroupMessageSender
- * @see PrivateMessageSender
+ * 机器人连接状态
  */
-export interface MessageSender {
-	/** 发送者的 QQ 号 */
+export enum BotConnectivity {
+	ONLINE = 'Online',
+	OFFLINE = 'Offline',
+	KICKED = 'Kicked',
+	DISCONNECTED = 'Disconnected'
+}
+
+/**
+ * 事件发起者
+ */
+export interface Operator {
 	id: number;
-}
-
-/**
- * 群消息发送者和临时消息发送者
- *
- * @see MessageSender
- */
-export interface GroupMessageSender extends MessageSender {
-	/** 成员名 */
 	memberName: string;
-	/** 成员权限 */
 	permission: GroupPermission;
-	/** 源消息群 */
 	group: Group;
 }
 
 /**
- * 好友消息发送者
- *
- * @see MessageSender
+ * 事件基类
  */
-export interface PrivateMessageSender extends MessageSender {
-	/** 昵称 */
-	nickname: string;
-	/** 备注 */
-	remark: string;
+export interface Event {
+	type: EventType;
 }
 
-/**
- * 消息
- */
-export interface Message {
-	/** 类型 */
-	type: MessageType;
-	/** 消息链 */
-	messageChain: Array&lt;MessageContent>;
-	/** 消息发送者 */
-	sender: MessageSender;
+export interface BotConnectivityChangeEvent extends Event {
+	type: EventType.BOT_CONNECTIVITY_CHANGED;
+	qq: number;
+	state: BotConnectivity;
 }
 
-/**
- * 消息内容类型
- *
- * @enum {string}
- * @readonly
- * @remarks 注意到有些枚举项目是同义词。这是为了给出最大的兼容性（和个人的一点点偏好）。
- */
-export enum MessageContentType {
-	/** 消息头 */
-	SOURCE = 'Source',
-	/** 消息头 */
-	MESSAGE_HEADER = 'Source',
-	/** 回复引用 */
-	QUOTE = 'Quote',
-	/** 回复引用 */
-	REPLY = 'Quote',
-	/** At */
-	AT = 'At',
-	/** At */
-	MENTION = 'At',
-	/** 所有人 */
-	AT_ALL = 'AtAll',
-	/** 所有人 */
-	MENTION_ALL = 'AtAll',
-	/** 表情 */
-	FACE = 'Face',
-	/** 表情 */
-	EMOTICON = 'Face',
-	/** 表情 */
-	EMOTION = 'Face',
-	/** 表情 */
-	EMOTE = 'Face',
-	/** 纯文字 */
-	PLAIN = 'Plain',
-	/** 纯文字 */
-	TEXT = 'Plain',
-	/** 图片 */
-	IMAGE = 'Image',
-	/** 图片 */
-	PICTURE = 'Image',
-	/** 闪照 */
-	FLASH_IMAGE = 'FlashImage',
-	/** 闪照 */
-	TRANSIENT_IMAGE = 'FlashImage',
-	/** 闪照 */
-	SELF_DESTRUCT_IMAGE = 'FlashImage',
-	/** 语音 */
-	VOICE = 'Voice',
-	/** XML 消息 */
-	XML = 'Xml',
-	/** JSON 消息 */
-	JSON = 'Json',
-	/** 应用程序分享消息 */
-	APP = 'App',
-	/** 戳一戳 */
-	POKE = 'Poke',
-	/** 戳一戳 */
-	INTERACT = 'Poke'
+export interface BotConnectivityBaseEvent extends Event {
+	qq: number;
 }
 
-/**
- * 消息内容块
- *
- * 消息内容块会被细化为诸如消息头、文字、图片等等更多子类型。
- * 此处不再一一列举。
- */
-export interface MessageContent {
-	type: MessageContentType;
+export interface BotOnlineEvent extends BotConnectivityBaseEvent {
+	type: EventType.BOT_ONLINE;
 }
 
-/**
- * 消息头
- *
- * @remarks 对应 `mirai-api-http` 中的 `Source` 类型。
- */
-export interface MessageHeader extends MessageContent {
-	type: MessageContentType.SOURCE;
-	/** 消息编号 */
-	id: number;
-	/** Unix 时间戳 */
+export interface BotOfflineEvent extends BotConnectivityBaseEvent {
+	type: EventType.BOT_OFFLINE;
+}
+
+export interface BotForcedOfflineEvent extends BotConnectivityBaseEvent {
+	type: EventType.BOT_OFFLINE_FORCED;
+}
+
+export interface BotDisconnectedOfflineEvent extends BotConnectivityBaseEvent {
+	type: EventType.BOT_OFFLINE_DISCONNECTED;
+}
+
+export interface BotReloginEvent extends BotConnectivityBaseEvent {
+	type: EventType.BOT_RELOGIN;
+}
+
+export interface BotPermissionChangedEvent extends Event {
+	type: EventType.BOT_PERMISSION_CHANGED;
+	origin: GroupPermission;
+	current: GroupPermission;
+	group: Group;
+}
+
+export interface BotMutedEvent extends Event {
+	type: EventType.BOT_MUTED;
+	durationSeconds: number;
+	operator: Operator;
+}
+
+export interface BotUnmutedEvent extends Event {
+	type: EventType.BOT_UNMUTED;
+	operator: Operator;
+}
+
+export interface BotGroupBaseEvent extends Event {
+	type: EventType;
+	group: Group;
+}
+
+export interface BotJoinedGroupEvent extends BotGroupBaseEvent {
+	type: EventType.BOT_GROUP_JOINED;
+}
+
+export interface BotPartedGroupEvent extends BotGroupBaseEvent {
+	type: EventType.BOT_GROUP_PARTED;
+}
+
+export interface BotKickedFromGroupEvent extends BotGroupBaseEvent {
+	type: EventType.BOT_GROUP_KICKED;
+}
+
+export interface GroupMessageRevokedEvent extends Event {
+	type: EventType.GROUP_MESSAGE_REVOKE;
+	authorId: number;
+	messageId: number;
 	time: number;
+	group: Group;
+	operator: Operator;
 }
 
-/**
- * 引用回复
- */
-export interface Quote extends MessageContent {
-	type: MessageContentType.QUOTE;
-	/** 源消息 ID */
-	id: number;
-	/** 被引用回复的源消息所接收的群号，当为好友消息时为 0 */
-	groupId: number;
-	/** 被引用回复的源消息的发送者的 QQ 号 */
-	senderId: number;
-	/** 被引用回复的源消息的接收者者的 QQ 号（或群号） */
-	targetId: number;
-	/** 源消息 */
-	origin: Array&lt;MessageContent>;
+export interface FriendMessageRevokedEvent extends Event {
+	type: EventType.FRIEND_MESSAGE_REVOKE;
+	authorId: number;
+	messageId: number;
+	time: number;
+	operator: number; // WTF
 }
 
-/**
- * 提到某人
- */
-export interface Mention extends MessageContent {
-	type: MessageContentType.MENTION;
-	/** 源发送者 QQ 号 */
-	target: number;
-	/** @ 时显示的文字，发送消息时无效，自动使用群名片 */
-	display: string;
+export interface GroupPolicyChangedEvent extends Event {
+	type: EventType;
+	origin: any;
+	current: any;
+	group: Group;
+	operator: Operator;
 }
 
-/**
- * 提到全体成员
- */
-export interface MentionAll extends MessageContent {
-	type: MessageContentType.MENTION_ALL;
+export interface GroupStringPolicyChangedEvent extends GroupPolicyChangedEvent {
+	origin: string;
+	current: string;
 }
 
-/**
- * 表情
- */
-export interface Emoticon extends MessageContent {
-	type: MessageContentType.EMOTICON;
-	/** 表情编号 */
-	faceId?: number;
-	/** 表情名称 */
-	name?: string;
+export interface GroupBinaryPolicyChangedEvent extends GroupPolicyChangedEvent {
+	origin: boolean;
+	current: boolean;
 }
 
-/**
- * 纯文字
- */
-export interface PlainText extends MessageContent {
-	type: MessageContentType.TEXT;
-	/** 内容 */
-	text: string;
+export interface GroupNameChangedEvent extends GroupStringPolicyChangedEvent {
+	type: EventType.GROUP_NAMED_CHANGED;
 }
 
-/**
- * 图片
- */
-export interface Image extends MessageContent {
-	type: MessageContentType.IMAGE;
-	/** 图片 ID */
-	imageId: string;
-	/** 图片 URL */
-	url: string;
+export interface GroupAnnouncementChangedEvent extends GroupStringPolicyChangedEvent {
+	type: EventType.GROUP_ANNOUNCEMENT_CHANGED;
 }
 
-/**
- * 出站图片
- */
-export interface OutboundImage extends MessageContent {
-	type: MessageContentType.IMAGE;
+export interface GroupChatPolicyChangedEvent extends GroupBinaryPolicyChangedEvent {
+	type: EventType.GROUP_MUTE_CHANGED;
 }
 
-/**
- * 基于图片 ID 的出站图片
- */
-export interface IdBasedOutboundImage extends OutboundImage {
-	imageId: string;
+export interface GroupAnonymousChatPolicyChangedEvent extends GroupBinaryPolicyChangedEvent {
+	type: EventType.GROUP_ANONYMOUS_CHAT_POLICY_CHANGED;
 }
 
-/**
- * 基于 URL 的出站图片
- */
-export interface UrlBasedOutboundImage extends OutboundImage {
-	url: string;
+export interface GroupConfessTalkPolicyChangedEvent extends GroupBinaryPolicyChangedEvent {
+	type: EventType.GROUP_CONFESS_TALK_POLICY_CHANGED;
 }
 
-/**
- * 基于本地文件的出站图片
- */
-export interface LocalImageBasedOutboundImage extends OutboundImage {
-	path: string;
+export interface GroupInvitePolicyChangedEvent extends GroupBinaryPolicyChangedEvent {
+	type: EventType.GROUP_INVITE_POLICY_CHANGED;
 }
 
-/**
- * 语音
- */
-export interface Voice extends MessageContent {
-	type: MessageContentType.VOICE;
-	voiceId: string;
-	url: string;
+export interface GroupMemberBaseEvent extends Event {
+	type: EventType;
+	member: {
+		id: number;
+		memberName: string;
+		permission: GroupPermission;
+		group: Group;
+	}
 }
 
-/**
- * 出站语音
- */
-export interface OutboundVoice extends MessageContent {
-	type: MessageContentType.VOICE;
+export interface GroupMemberJoinedEvent extends GroupMemberBaseEvent {
+	type: EventType.GROUP_MEMBER_JOINED;
 }
 
-/**
- * 基于 ID 的出站语音
- */
-export interface IdBasedOutboundVoice extends OutboundVoice {
-	voiceId: string;
+export interface GroupMemberKickedEvent extends GroupMemberBaseEvent {
+	type: EventType.GROUP_MEMBER_KICKED;
+	operator: Operator;
 }
 
-/**
- * 基于 URL 的出站语音
- */
-export interface UrlBasedOutboundVoice extends OutboundVoice {
-	url: string;
+export interface GroupMemberPartedEvent extends GroupMemberBaseEvent {
+	type: EventType.GROUP_MEMBER_PARTED;
 }
 
-/**
- * 基于本地文件的出站语音
- */
-export interface LocalFileBasedOutboundVoice extends OutboundVoice {
-	path: string;
+export interface GroupMemberNameChangedEvent extends GroupMemberBaseEvent {
+	type: EventType.GROUP_MEMBER_RENAMED;
+	origin: string;
+	current: string;
+	operator: Operator;
 }
 
-/**
- * XML 消息
- */
-export interface XmlMessage extends MessageContent {
-	type: MessageContentType.XML;
-	/** XML 内容 */
-	xml: string;
+export interface GroupMemberTitleChangedEvent extends GroupMemberBaseEvent {
+	type: EventType.GROUP_MEMBER_TITLE_CHANGED;
+	origin: string;
+	current: string;
 }
 
-/**
- * JSON 消息
- */
-export interface JsonMessage extends MessageContent {
-	type: MessageContentType.JSON;
-	/** JSON 内容 */
-	json: string;
+export interface GroupMemberPermissionChangedEvent extends GroupMemberBaseEvent {
+	type: EventType.GROUP_MEMBER_PERMISSION_CHANGED;
+	origin: GroupPermission;
+	current: GroupPermission;
 }
 
-/**
- * APP 分享消息
- */
-export interface AppMessage extends MessageContent {
-	type: MessageContentType.APP;
-	/** APP 分享内容 */
-	content: string;
+export interface GroupMemberMutedEvent extends GroupMemberBaseEvent {
+	type: EventType.GROUP_MEMBER_MUTED;
+	durationSeconds: number;
+	operator: Operator;
 }
 
-/**
- * 戳一戳动作类型
- *
- * @enum {string}
- * @readonly
- */
-export enum InteractMessageType {
-	/** 戳一戳 */
-	POKE = 'Poke',
-	/** 比心 */
-	SHOW_LOVE = 'ShowLove',
-	/** 比心 */
-	SHOW_HEART = 'ShowLove',
-	/** 点赞 */
-	LIKE = 'Like',
-	/** 心碎 */
-	HEART_BROKEN = 'HeartBroken',
-	/** 666 */
-	SIX_SIX_SIX = 'SixSixSix',
-	/** 放大招 */
-	FANG_DA_ZHAO = 'FangDaZhao',
-	/** 放大招 */
-	ULT = 'FangDaZhao'
-}
-
-/**
- * 戳一戳消息
- */
-export interface InteractMessage extends MessageContent {
-	type: MessageContentType.INTERACT;
-	/** 动作类型 */
-	name: InteractMessageType;
+export interface GroupMemberUnmutedEvent extends GroupMemberBaseEvent {
+	type: EventType.GROUP_MEMBER_UNMUTED;
+	operator: Operator;
 }
 </code></pre>
         </article>

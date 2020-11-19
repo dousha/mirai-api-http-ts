@@ -7,7 +7,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> src/objects/StatusCode.ts</title>
+  <title> src/objects/GroupPermission.ts</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -76,7 +76,7 @@
             <div class="content">
                 <header class="page-title">
                     <p>Source</p>
-                    <h1>src/objects/StatusCode.ts</h1>
+                    <h1>src/objects/GroupPermission.ts</h1>
                 </header>
                 
 
@@ -86,33 +86,20 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * 操作状态码
+ * 群成员权限
  *
- * @enum {number}
+ * @enum {string}
+ * @readonly
  */
-export enum StatusCode {
-	/** 成功 */
-	SUCCESS = 0,
-	/** 验证失败 */
-	AUTHENTICATION_FAILURE = 1,
-	/** 找不到机器人 */
-	BOT_NOT_FOUND = 2,
-	/** 会话无效 */
-	INVALID_SESSION = 3,
-	/** 会话未绑定到机器人 */
-	INACTIVE_SESSION = 4,
-	/** 操作目标不存在 */
-	TARGET_NOT_FOUND = 5,
-	/** 文件未找到 */
-	FILE_NOT_FOUND = 6,
-	/** 没有权限 */
-	PERMISSION_DENIED = 10,
-	/** 机器人被禁言 */
-	MUTED = 20,
-	/** 消息过长 */
-	MESSAGE_BODY_TOO_LONG = 30,
-	/** 请求不合法 */
-	BAD_REQUEST = 400,
+export enum GroupPermission {
+	/** 群员 */
+	MEMBER = 'MEMBER',
+	/** 管理员 */
+	ADMINISTRATOR = 'ADMINISTRATOR',
+	/** 管理员 */
+	ADMIN = 'ADMINISTRATOR',
+	/** 群主 */
+	OWNER = 'OWNER'
 }
 </code></pre>
         </article>
