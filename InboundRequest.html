@@ -5,7 +5,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> FriendRequest</title>
+  <title> InboundRequest</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -74,7 +74,7 @@
             <div class="content">
                 <header class="page-title">
                     <p>Class</p>
-                    <h1>FriendRequest</h1>
+                    <h1>InboundRequest</h1>
                 </header>
                 
 
@@ -85,9 +85,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>FriendRequest</h2>
+        <h2><span class="attribs"><span class="type-signature">(protected) </span></span>InboundRequest</h2>
         
-            <div class="class-description">好友添加请求</div>
+            <div class="class-description">请求基类</div>
         
     
 </header>
@@ -115,6 +115,9 @@
 
     
 
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.6</li></ul></dd>
     
 
     
@@ -146,7 +149,7 @@
         <p class="tag-source">
             <a href="src_objects_Request.ts.html" class="button">View Source</a>
             <span>
-                <a href="src_objects_Request.ts.html">src/objects/Request.ts</a>, <a href="src_objects_Request.ts.html#line63">line 63</a>
+                <a href="src_objects_Request.ts.html">src/objects/Request.ts</a>, <a href="src_objects_Request.ts.html#line8">line 8</a>
             </span>
         </p>
     
@@ -185,7 +188,7 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="FriendRequest.html">FriendRequest</a></dt>
+            <dt><a href="InboundRequest.html">InboundRequest</a></dt>
             <dd></dd>
         </dl>
     
@@ -207,12 +210,12 @@
 
 
     
-    <h4 class="name" id="rejectAndBlacklist">
-        <a class="href-link" href="#rejectAndBlacklist">#</a>
+    <h4 class="name" id="accept">
+        <a class="href-link" href="#accept">#</a>
         
         <span class="code-name">
             
-                rejectAndBlacklist<span class="signature">(msg)</span><span class="type-signature"></span>
+                accept<span class="signature">(msg)</span><span class="type-signature"></span>
             
         </span>
     </h4>
@@ -221,7 +224,7 @@
     
     
     <div class="description">
-        拒绝且加入黑名单
+        同意该请求
     </div>
     
 
@@ -275,7 +278,7 @@
 
   
 
-  <td class="description last">回复消息，默认为空</td>
+  <td class="description last">回复信息，默认为空</td>
 </tr>
 
 
@@ -323,7 +326,328 @@
         <p class="tag-source">
             <a href="src_objects_Request.ts.html" class="button">View Source</a>
             <span>
-                <a href="src_objects_Request.ts.html">src/objects/Request.ts</a>, <a href="src_objects_Request.ts.html#line79">line 79</a>
+                <a href="src_objects_Request.ts.html">src/objects/Request.ts</a>, <a href="src_objects_Request.ts.html#line38">line 38</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="reject">
+        <a class="href-link" href="#reject">#</a>
+        
+        <span class="code-name">
+            
+                reject<span class="signature">(msg)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        拒绝该请求
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>msg</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">string</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last">回复信息，默认为空</td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="src_objects_Request.ts.html" class="button">View Source</a>
+            <span>
+                <a href="src_objects_Request.ts.html">src/objects/Request.ts</a>, <a href="src_objects_Request.ts.html#line46">line 46</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="reply">
+        <a class="href-link" href="#reply">#</a>
+        
+        <span class="code-name">
+            
+                reply<span class="signature">(v, msg)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        回复该请求
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>v</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">number</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last">回复值</td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>msg</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">string</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last">回复信息，默认为空</td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="src_objects_Request.ts.html" class="button">View Source</a>
+            <span>
+                <a href="src_objects_Request.ts.html">src/objects/Request.ts</a>, <a href="src_objects_Request.ts.html#line30">line 30</a>
             </span>
         </p>
     
