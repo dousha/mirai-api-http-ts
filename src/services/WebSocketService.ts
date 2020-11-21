@@ -16,7 +16,7 @@ export class WebSocketService extends EventEmitter {
 		this.setup();
 	}
 
-	public close() {
+	public close(): void {
 		this.ws?.close();
 	}
 

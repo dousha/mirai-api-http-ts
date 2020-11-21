@@ -2,6 +2,7 @@ import { Event, RequestType } from './Event';
 import { SessionAuthenticationService } from '../services/SessionAuthenticationService';
 import { HttpService } from '../services/HttpService';
 import { BasicResponse } from './ServerResponse';
+import { AxiosResponse } from 'axios';
 
 /**
  * 请求基类
@@ -22,7 +23,7 @@ export interface RequestBase extends Event {
  *
  * @since 0.1.6
  */
-export interface ResponseBase {
+export interface ResponseBase extends Record<string, unknown> {
 	sessionKey: string;
 	eventId: number;
 	fromId: number;
@@ -55,7 +56,7 @@ export abstract class InboundRequest {
 	 * @param {number} v 回复值
 	 * @param {string} msg 回复信息，默认为空
 	 */
-	public reply(v: number, msg = '') {
+	public reply(v: number, msg = ''): Promise<AxiosResponse<BasicResponse>> {
 		return this.auth.obtainToken().then(token => this.http.post<BasicResponse>(this.path, this.assembleResponse(token, v, msg)));
 	}
 
@@ -64,7 +65,7 @@ export abstract class InboundRequest {
 	 *
 	 * @param {string} msg 回复信息，默认为空
 	 */
-	public accept(msg = '') {
+	public accept(msg = ''): Promise<AxiosResponse<BasicResponse>> {
 		return this.reply(0, msg);
 	}
 
@@ -73,7 +74,7 @@ export abstract class InboundRequest {
 	 *
 	 * @param {string} msg 回复信息，默认为空
 	 */
-	public reject(msg = '') {
+	public reject(msg = ''): Promise<AxiosResponse<BasicResponse>> {
 		return this.reply(1, msg);
 	}
 
@@ -113,7 +114,7 @@ export class FriendRequest extends InboundRequest {
 	 *
 	 * @param {string} msg 回复消息，默认为空
 	 */
-	public rejectAndBlacklist(msg = '') {
+	public rejectAndBlacklist(msg = ''): Promise<AxiosResponse<BasicResponse>> {
 		return this.reply(FriendResponseType.REJECT_AND_BLACKLIST, msg);
 	}
 }
@@ -153,7 +154,7 @@ export class GroupJoinRequest extends InboundRequest {
 	 *
 	 * @param msg 回复消息，默认为空
 	 */
-	public ignore(msg = '') {
+	public ignore(msg = ''): Promise<AxiosResponse<BasicResponse>> {
 		return this.reply(GroupJoinResponseType.IGNORE, msg);
 	}
 
@@ -162,7 +163,7 @@ export class GroupJoinRequest extends InboundRequest {
 	 *
 	 * @param msg 回复消息，默认为空
 	 */
-	public rejectAndBlacklist(msg = '') {
+	public rejectAndBlacklist(msg = ''): Promise<AxiosResponse<BasicResponse>> {
 		return this.reply(GroupJoinResponseType.REJECT_AND_BLACKLIST, msg);
 	}
 
@@ -171,7 +172,7 @@ export class GroupJoinRequest extends InboundRequest {
 	 *
 	 * @param msg 回复消息，默认为空
 	 */
-	public ignoreAndBlacklist(msg = '') {
+	public ignoreAndBlacklist(msg = ''): Promise<AxiosResponse<BasicResponse>> {
 		return this.reply(GroupJoinResponseType.IGNORE_AND_BLACKLIST, msg);
 	}
 }

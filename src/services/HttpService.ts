@@ -1,5 +1,5 @@
 import { ConnectionConfig } from '../objects/Config';
-import Axios, { AxiosInstance } from 'axios';
+import Axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 export type BasicValueType = string | number;
 export type ValueType = BasicValueType | { [key: string]: ValueType } | { [key: string]: BasicValueType[] };
@@ -15,11 +15,11 @@ export class HttpService {
 		});
 	}
 
-	public get<T>(path: string, params?: Record<string, ValueType>) {
+	public get<T>(path: string, params?: Record<string, ValueType>): Promise<AxiosResponse<T>> {
 		return this.axios.get<T>(`${path}${params != null ? '?' + HttpService.assembleGetRequest(params) : ''}`);
 	}
 
-	public post<T>(path: string, params?: Record<string, any>) {
+	public post<T>(path: string, params?: Record<string, unknown>): Promise<AxiosResponse<T>> {
 		return this.axios.post<T>(path, params);
 	}
 

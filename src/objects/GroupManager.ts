@@ -1,3 +1,4 @@
+import { AxiosResponse } from 'axios';
 import { HttpService } from '../services/HttpService';
 import { SessionAuthenticationService } from '../services/SessionAuthenticationService';
 import { BasicResponse } from './ServerResponse';
@@ -24,7 +25,7 @@ export class GroupManager {
 	 * @param {number} time 禁言时长，单位为秒，默认为 1 分钟
 	 * @since 0.1.4
 	 */
-	public mute(id: number, time: number = 60) {
+	public mute(id: number, time = 60): Promise<AxiosResponse<BasicResponse>> {
 		return this.auth.obtainToken().then(token =>
 			this.http.post<BasicResponse>('/mute', {
 				sessionKey: token,
@@ -40,7 +41,7 @@ export class GroupManager {
 	 * @param {number} id QQ 号
 	 * @since 0.1.4
 	 */
-	public unmute(id: number) {
+	public unmute(id: number): Promise<AxiosResponse<BasicResponse>> {
 		return this.auth.obtainToken().then(token =>
 			this.http.post<BasicResponse>('/unmute', {
 				sessionKey: token,
@@ -55,7 +56,7 @@ export class GroupManager {
 	 * @param {number} id QQ 号
 	 * @since 0.1.4
 	 */
-	public pardon(id: number) {
+	public pardon(id: number): Promise<AxiosResponse<BasicResponse>> {
 		return this.unmute(id);
 	}
 
@@ -66,7 +67,7 @@ export class GroupManager {
 	 * @param {string} msg 踢出原因，默认为空
 	 * @since 0.1.4
 	 */
-	public kick(id: number, msg: string = '') {
+	public kick(id: number, msg = ''): Promise<AxiosResponse<BasicResponse>> {
 		return this.auth.obtainToken().then(token =>
 			this.http.post<BasicResponse>('/unmute', {
 				sessionKey: token,
@@ -81,7 +82,7 @@ export class GroupManager {
 	 *
 	 * @since 0.1.4
 	 */
-	public quit() {
+	public quit(): Promise<AxiosResponse<BasicResponse>> {
 		return this.auth.obtainToken().then(token =>
 			this.http.post<BasicResponse>('/quit', {
 				sessionKey: token,
@@ -94,7 +95,7 @@ export class GroupManager {
 	 *
 	 * @since 0.1.4
 	 */
-	public muteAll() {
+	public muteAll(): Promise<AxiosResponse<BasicResponse>> {
 		return this.auth.obtainToken().then(token =>
 			this.http.post<BasicResponse>('/muteAll', {
 				sessionKey: token,
@@ -107,7 +108,7 @@ export class GroupManager {
 	 *
 	 * @since 0.1.4
 	 */
-	public unmuteAll() {
+	public unmuteAll(): Promise<AxiosResponse<BasicResponse>> {
 		return this.auth.obtainToken().then(token =>
 			this.http.post<BasicResponse>('/unmuteAll', {
 				sessionKey: token,

@@ -69,7 +69,7 @@ export class MiraiClient extends EventEmitter {
 	 * @since 0.1.4
 	 */
 	public waitForReady(): Promise<void> {
-		return this.auth.obtainToken().then(() => {});
+		return this.auth.obtainToken().then(() => { return; });
 	}
 
 	/**
@@ -125,7 +125,7 @@ export class MiraiClient extends EventEmitter {
 	 *
 	 * @since 0.0.1
 	 */
-	public close() {
+	public close(): void {
 		this.ws?.close();
 		this.inbound?.close();
 		this.auth.close().catch(console.error);

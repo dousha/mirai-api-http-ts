@@ -2,15 +2,14 @@ import {
 	Emoticon,
 	GroupMessageSender,
 	Image,
-	InteractMessage,
 	Mention,
 	Message,
 	MessageContent,
 	MessageContentType,
 	MessageHeader,
+	MessageSender,
 	MessageType,
 	PlainText,
-	PrivateMessageSender,
 	Quote,
 	Voice,
 } from './Message';
@@ -18,6 +17,7 @@ import { OutboundMessagingService } from '../services/OutboundMessagingService';
 import { OutboundMessageChain } from './OutboundMessageChain';
 import { AxiosResponse } from 'axios';
 import { BasicResponse } from './ServerResponse';
+import { escapeMirai } from '../utils/TextUtils';
 
 /**
  * 入站消息
@@ -131,7 +131,7 @@ export class InboundMessage<T extends Message> {
 	 * @since 0.0.1
 	 */
 	public getFirstPieceOfMessageContent(): MessageContent | undefined {
-		for (let msg of this.message.messageChain) {
+		for (const msg of this.message.messageChain) {
 			if (msg.type === MessageContentType.MESSAGE_HEADER || msg.type === MessageContentType.QUOTE) {
 				continue;
 			}
@@ -153,7 +153,7 @@ export class InboundMessage<T extends Message> {
 			.filter(it => it.type === MessageContentType.TEXT)
 			.map(it => it as PlainText)
 			.map(it => it.text)
-			.join('\n');
+			.join(joiner);
 	}
 
 	/**
@@ -189,16 +189,17 @@ export class InboundMessage<T extends Message> {
 			.map(it => {
 				switch (it.type) {
 					case MessageContentType.TEXT:
-						return (it as PlainText).text;
+						return escapeMirai((it as PlainText).text);
 					case MessageContentType.MENTION_ALL:
 						return '[mirai:atall]';
 					case MessageContentType.MENTION:
-						return `[mirai:at:${(it as Mention).target},${(it as Mention).display}]`;
+						return `[mirai:at:${(it as Mention).target},${escapeMirai((it as Mention).display)}]`;
 					case MessageContentType.EMOTICON:
 						return `[mirai:face:${(it as Emoticon).faceId}]`;
 					case MessageContentType.TRANSIENT_IMAGE:
-					case MessageContentType.IMAGE:
 						return `[mirai:flash:${(it as Image).imageId}]`;
+					case MessageContentType.IMAGE:
+						return `[mirai:image:${(it as Image).imageId}]`;
 					case MessageContentType.VOICE:
 						return `[mirai:voice:${(it as Voice).voiceId}]`;
 					case MessageContentType.SOURCE:
@@ -227,7 +228,7 @@ export class InboundMessage<T extends Message> {
 	 *
 	 * @since 0.0.1
 	 */
-	public get id() {
+	public get id(): number {
 		return this.header.id;
 	}
 
@@ -237,7 +238,7 @@ export class InboundMessage<T extends Message> {
 	 * @returns {PrivateMessageSender | GroupMessageSender}
 	 * @since 0.0.1
 	 */
-	public get sender() {
+	public get sender(): MessageSender {
 		return this.message.sender;
 	}
 }

@@ -19,7 +19,7 @@ export class InboundMessagingService extends EventEmitter {
 		}, config.pollPeriod);
 	}
 
-	public close() {
+	public close(): void {
 		clearInterval(this.timer);
 	}
 

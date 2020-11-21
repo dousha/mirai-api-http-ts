@@ -249,7 +249,7 @@ export interface Image extends MessageContent {
  * 出站图片
  */
 export interface OutboundImage extends MessageContent {
-	type: MessageContentType.IMAGE;
+	type: MessageContentType.IMAGE | MessageContentType.TRANSIENT_IMAGE;
 }
 
 /**

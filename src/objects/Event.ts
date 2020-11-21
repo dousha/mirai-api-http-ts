@@ -281,9 +281,9 @@ export interface FriendMessageRevokedEvent extends Event {
 export interface GroupPolicyChangedEvent extends Event {
 	type: GroupPolicyEventType;
 	/** 变更前值 */
-	origin: any;
+	origin: unknown;
 	/** 变更后值 */
-	current: any;
+	current: unknown;
 	/** 所属群 */
 	group: Group;
 	/** 操作者对象 */
