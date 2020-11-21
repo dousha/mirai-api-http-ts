@@ -29,9 +29,7 @@ Documentation in progress...
 See `examples/` for working examples. Here is a simple echo bot example:
 
 ```ts
-import { MiraiClient } from '../index';
-import { MessageType } from '../src/objects/Message';
-import { OutboundMessageChain } from '../src/objects/OutboundMessageChain';
+import { MiraiClient, OutboundMessageChiain, MessageType } from '@dousha99/mirai-api-http-ts';
 
 const mirai = new MiraiClient({
 	connection: {
@@ -48,17 +46,17 @@ const mirai = new MiraiClient({
 		account: Number(process.env['QQ']!),
 	},
 });
-mirai.on('message', msg => {
-	if (msg.message.type === MessageType.FRIEND_MESSAGE) {
-		if (msg.isPlainTextMessage()) {
-			const text = msg.getPlainText();
-			msg.reply(OutboundMessageChain.ofText(text)).catch(e => console.error(e));
-			if (text.trim() === 'stophammertime') {
-				mirai.close();
-			}
+
+mirai.on(MessageType.FRIEND_MESSAGE, msg => {
+	if (msg.isPlainTextMessage()) {
+		const text = msg.extractPlainText();
+		msg.reply(OutboundMessageChain.ofText(text)).catch(e => console.error(e));
+		if (text.trim() === 'stophammertime') {
+			mirai.close();
 		}
 	}
 });
+
 mirai.on('connect', () => {
 	console.log('Ready');
 });

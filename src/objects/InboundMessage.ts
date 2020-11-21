@@ -1,23 +1,35 @@
 import {
+	Emoticon,
 	GroupMessageSender,
+	Image,
 	Mention,
 	Message,
 	MessageContent,
 	MessageContentType,
 	MessageHeader,
+	MessageSender,
 	MessageType,
 	PlainText,
-	PrivateMessageSender,
 	Quote,
+	Voice,
 } from './Message';
 import { OutboundMessagingService } from '../services/OutboundMessagingService';
 import { OutboundMessageChain } from './OutboundMessageChain';
 import { AxiosResponse } from 'axios';
 import { BasicResponse } from './ServerResponse';
-import { TODO } from '../utils/TodoUtils';
+import { escapeMirai } from '../utils/TextUtils';
 
-export class InboundMessage {
-	constructor(public readonly message: Message, private readonly srvc: OutboundMessagingService) {
+/**
+ * 入站消息
+ */
+export class InboundMessage<T extends Message> {
+	/**
+	 * @constructor
+	 * @hideconstructor
+	 * @param {Message} message 消息
+	 * @param {OutboundMessagingService} srvc 发送服务
+	 */
+	constructor(public readonly message: T, private readonly srvc: OutboundMessagingService) {
 	}
 
 	/**
@@ -41,10 +53,11 @@ export class InboundMessage {
 	 * 回复这条消息。
 	 *
 	 * @param {OutboundMessageChain} chain 消息链
+	 * @param {boolean} useAt 回复时提到该消息的发送人。对于非群消息则该参数被忽略。默认为否。（自从 0.1.4 版本添加）
 	 * @see OutboundMessageChain
 	 * @since 0.0.1
 	 */
-	public reply(chain: OutboundMessageChain): Promise<AxiosResponse<BasicResponse>> {
+	public reply(chain: OutboundMessageChain, useAt = false): Promise<AxiosResponse<BasicResponse>> {
 		const header = this.header;
 		const sender = this.message.sender;
 		const quoteBlock: Quote = {
@@ -55,7 +68,15 @@ export class InboundMessage {
 			targetId: sender.id,
 			origin: this.message.messageChain,
 		};
-		chain.prepend(quoteBlock);
+		chain.prepend(quoteBlock); // FIXME: it doesn't quite work as intended.
+		if (useAt && this.message.type === MessageType.GROUP_MESSAGE) {
+			const mentionBlock: Mention = {
+				type: MessageContentType.MENTION,
+				target: sender.id,
+				display: '',
+			};
+			chain.append(mentionBlock);
+		}
 		switch (this.message.type) {
 			case MessageType.GROUP_MESSAGE:
 				return this.srvc.sendToGroup((sender as GroupMessageSender).group.id, chain);
@@ -110,7 +131,7 @@ export class InboundMessage {
 	 * @since 0.0.1
 	 */
 	public getFirstPieceOfMessageContent(): MessageContent | undefined {
-		for (let msg of this.message.messageChain) {
+		for (const msg of this.message.messageChain) {
 			if (msg.type === MessageContentType.MESSAGE_HEADER || msg.type === MessageContentType.QUOTE) {
 				continue;
 			}
@@ -132,7 +153,7 @@ export class InboundMessage {
 			.filter(it => it.type === MessageContentType.TEXT)
 			.map(it => it as PlainText)
 			.map(it => it.text)
-			.join('\n');
+			.join(joiner);
 	}
 
 	/**
@@ -150,13 +171,46 @@ export class InboundMessage {
 	}
 
 	/**
-	 * 将消息转为 Mirai 码。
+	 * 将消息转为 Mirai 码。不可被转换的部分（未在规范中指明的部分）会被替换为 `[mirai:not-specified:${type}]`.
+	 * 特殊的，回复引用部分将被丢弃。
+	 * <br>
+	 * 由于上游文档的不一致性，部分在文档中的内容也会被替换为 `[mirai:not-specified:...]`.
+	 * 这些内容包括 `PokeMessage` ({@link InteractMessage}) 和 `VipFace` (未在 `mirai-api-http` 中实现).
+	 * <br>
+	 * 对于可以推测的内容，将转换为可能的形式，如 {@link Voice} 会被转换为 `[mirai:voice:${voiceId}]` 的形式。
+	 * 消息头则按照 `mirai-console` 内的实现转换为 `[mirai:source:${id}]`. 如果不希望保留消息头，则传入 `true`.
 	 *
-	 * @todo 正在实现，现在调用会立刻抛出异常
+	 * @param {boolean} discardHeader 是否去除消息头，默认为否
+	 * @since 0.1.4
+	 * @see {@link https://github.com/mamoe/mirai/blob/dev/docs/mirai-code-specification.md 规范文档}
 	 */
-	public toMiraiCode(): string {
-		TODO();
-		return '';
+	public toMiraiCode(discardHeader = false): string {
+		return this.message.messageChain
+			.map(it => {
+				switch (it.type) {
+					case MessageContentType.TEXT:
+						return escapeMirai((it as PlainText).text);
+					case MessageContentType.MENTION_ALL:
+						return '[mirai:atall]';
+					case MessageContentType.MENTION:
+						return `[mirai:at:${(it as Mention).target},${escapeMirai((it as Mention).display)}]`;
+					case MessageContentType.EMOTICON:
+						return `[mirai:face:${(it as Emoticon).faceId}]`;
+					case MessageContentType.TRANSIENT_IMAGE:
+						return `[mirai:flash:${(it as Image).imageId}]`;
+					case MessageContentType.IMAGE:
+						return `[mirai:image:${(it as Image).imageId}]`;
+					case MessageContentType.VOICE:
+						return `[mirai:voice:${(it as Voice).voiceId}]`;
+					case MessageContentType.SOURCE:
+						return discardHeader ? '' : `[mirai:source:${(it as MessageHeader).id}]`;
+					case MessageContentType.QUOTE:
+						return '';
+					default:
+						return `[mirai:not-specified:${it.type}]`;
+				}
+			})
+			.join('');
 	}
 
 	/**
@@ -174,7 +228,7 @@ export class InboundMessage {
 	 *
 	 * @since 0.0.1
 	 */
-	public get id() {
+	public get id(): number {
 		return this.header.id;
 	}
 
@@ -184,15 +238,7 @@ export class InboundMessage {
 	 * @returns {PrivateMessageSender | GroupMessageSender}
 	 * @since 0.0.1
 	 */
-	public get sender() {
-		switch (this.message.type) {
-			case MessageType.FRIEND_MESSAGE:
-				return this.message.sender as PrivateMessageSender;
-			case MessageType.TEMP_MESSAGE:
-			case MessageType.GROUP_MESSAGE:
-				return this.message.sender as GroupMessageSender;
-			default:
-				throw new Error('Unknown message type ' + this.message.type);
-		}
+	public get sender(): MessageSender {
+		return this.message.sender;
 	}
 }

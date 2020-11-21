@@ -1,15 +1,13 @@
 import { ConnectionConfig } from '../objects/Config';
 import { SessionAuthenticationService } from './SessionAuthenticationService';
-import { isMessage } from '../utils/TypeUtils';
 import { EventEmitter } from 'events';
 import { OutboundMessagingService } from './OutboundMessagingService';
-import { InboundMessage } from '../objects/InboundMessage';
 import WebSocket = require('ws');
 
 export interface WebSocketService extends EventEmitter {
-	on(t: 'message', cb: (m: InboundMessage) => void): this;
+	on(t: 'message', cb: (m: unknown) => void): this;
 
-	on(t: 'error', cb: (m: InboundMessage) => void): this;
+	on(t: 'error', cb: (m?: Error) => void): this;
 }
 
 export class WebSocketService extends EventEmitter {
@@ -18,7 +16,7 @@ export class WebSocketService extends EventEmitter {
 		this.setup();
 	}
 
-	public close() {
+	public close(): void {
 		this.ws?.close();
 	}
 
@@ -32,11 +30,7 @@ export class WebSocketService extends EventEmitter {
 						return;
 					}
 					const obj = JSON.parse(msg);
-					if (isMessage(obj)) {
-						this.emit('message', new InboundMessage(obj, this.msg));
-					} else {
-						console.warn(`Received WebSocket message that is not a valid message: ${msg}`);
-					}
+					this.emit('message', obj);
 				})
 				.on('error', e => {
 					console.error(e);

@@ -1,6 +1,6 @@
 {
   "name": "@dousha99/mirai-api-http-ts",
-  "version": "0.1.3",
+  "version": "0.1.7",
   "description": "A TypeScript wrapper used to interact with mirai-api-http",
   "main": "build/index.js",
   "repository": "https://github.com/dousha/mirai-api-http-ts.git",
@@ -13,16 +13,22 @@
   "devDependencies": {
     "@types/node": "^14.14.6",
     "@types/ws": "^7.2.9",
+    "@typescript-eslint/eslint-plugin": "^4.8.1",
+    "@typescript-eslint/parser": "^4.8.1",
     "better-docs": "^2.3.2",
+    "eslint": "^7.14.0",
     "jsdoc": "^3.6.6",
     "typescript": "^4.0.5"
   },
   "files": [
-    "build"
+    "/build/src/**/*",
+    "/build/index.d.ts",
+    "/build/index.js"
   ],
   "types": "./build/index.d.ts",
   "scripts": {
     "build": "./node_modules/.bin/tsc",
-    "doc": "./node_modules/.bin/jsdoc -r -c jsdoc.json"
+    "doc": "./node_modules/.bin/jsdoc -r -c jsdoc.json",
+    "lint": "./node_modules/.bin/eslint --ext .ts 'src/**/*'"
   }
 }

@@ -2,12 +2,11 @@ import { SessionAuthenticationService } from './SessionAuthenticationService';
 import { HttpService } from './HttpService';
 import { ConnectionConfig } from '../objects/Config';
 import { EventEmitter } from 'events';
-import { InboundMessage } from '../objects/InboundMessage';
 import { MessagePollResponse } from '../objects/ServerResponse';
 import { OutboundMessagingService } from './OutboundMessagingService';
 
 export interface InboundMessagingService extends EventEmitter {
-	on(type: 'message', cb: (msg: InboundMessage) => void): this;
+	on(type: 'message', cb: (msg: unknown) => void): this;
 
 	on(type: 'error', cb: (err?: Error) => void): this;
 }
@@ -20,7 +19,7 @@ export class InboundMessagingService extends EventEmitter {
 		}, config.pollPeriod);
 	}
 
-	public close() {
+	public close(): void {
 		clearInterval(this.timer);
 	}
 
@@ -32,7 +31,7 @@ export class InboundMessagingService extends EventEmitter {
 			}).then(res => {
 				if (res.data.code === 0) {
 					res.data.data.forEach(it => {
-						this.emit('message', new InboundMessage(it, this.out));
+						this.emit('message', it);
 					});
 				} else {
 					console.error(`Received non-zero error code: ${res.data.code}`);

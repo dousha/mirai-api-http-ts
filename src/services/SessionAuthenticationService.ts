@@ -2,6 +2,7 @@ import { HttpService } from './HttpService';
 import { AccountConfig } from '../objects/Config';
 import { BasicResponse, SessionInitiateResponse } from '../objects/ServerResponse';
 import { StatusCode } from '../objects/StatusCode';
+import { AxiosResponse } from 'axios';
 
 export class SessionAuthenticationService {
 	constructor(private readonly config: AccountConfig, private readonly http: HttpService) {
@@ -12,16 +13,12 @@ export class SessionAuthenticationService {
 		return this.tokenPromise;
 	}
 
-	public close() {
+	public close(): Promise<AxiosResponse<BasicResponse>> {
 		return this.obtainToken().then(token =>
-			this.http.post('/release', {
+			this.http.post<BasicResponse>('/release', {
 				sessionKey: token,
 				qq: this.config.account,
 			}));
-	}
-
-	public get account(): number {
-		return this.config.account;
 	}
 
 	private setup() {
@@ -49,4 +46,8 @@ export class SessionAuthenticationService {
 	}
 
 	private readonly tokenPromise: Promise<string>;
+
+	public get account(): number {
+		return this.config.account;
+	}
 }

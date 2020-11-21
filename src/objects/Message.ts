@@ -1,7 +1,10 @@
+import { Group } from './Group';
+import { GroupPermission } from './GroupPermission';
+
 /**
- * 基本消息类型
+ * 消息类型
  *
- * @remarks 这个枚举可能不包含所有的事件类型。
+ * @enum {string}
  */
 export enum MessageType {
 	/** 群消息 */
@@ -12,6 +15,12 @@ export enum MessageType {
 	TEMP_MESSAGE = 'TempMessage',
 }
 
+export type MessageTypeLut = {
+	[MessageType.GROUP_MESSAGE]: GroupMessage,
+	[MessageType.FRIEND_MESSAGE]: FriendMessage,
+	[MessageType.TEMP_MESSAGE]: TempMessage,
+};
+
 /**
  * 消息发送者
  *
@@ -21,34 +30,8 @@ export enum MessageType {
  * @see PrivateMessageSender
  */
 export interface MessageSender {
-	/** 群号或者 QQ 号，取决于实际类型 */
+	/** 发送者的 QQ 号 */
 	id: number;
-}
-
-/**
- * 群成员权限
- */
-export enum GroupPermission {
-	/** 群员 */
-	MEMBER = 'MEMBER',
-	/** 管理员 */
-	ADMINISTRATOR = 'ADMINISTRATOR',
-	/** 管理员 */
-	ADMIN = 'ADMINISTRATOR',
-	/** 群主 */
-	OWNER = 'OWNER'
-}
-
-/**
- * 群标识符
- */
-export interface Group {
-	/** 群号 */
-	id: number;
-	/** 群名 */
-	name: string;
-	/** 机器人的权限 */
-	permission: GroupPermission;
 }
 
 /**
@@ -78,7 +61,7 @@ export interface PrivateMessageSender extends MessageSender {
 }
 
 /**
- * 消息
+ * 消息基类
  */
 export interface Message {
 	/** 类型 */
@@ -90,8 +73,34 @@ export interface Message {
 }
 
 /**
+ * 群消息
+ */
+export interface GroupMessage extends Message {
+	type: MessageType.GROUP_MESSAGE;
+	sender: GroupMessageSender;
+}
+
+/**
+ * 临时消息
+ */
+export interface TempMessage extends Message {
+	type: MessageType.TEMP_MESSAGE;
+	sender: GroupMessageSender;
+}
+
+/**
+ * 好友消息
+ */
+export interface FriendMessage extends Message {
+	type: MessageType.FRIEND_MESSAGE;
+	sender: PrivateMessageSender;
+}
+
+/**
  * 消息内容类型
  *
+ * @enum {string}
+ * @readonly
  * @remarks 注意到有些枚举项目是同义词。这是为了给出最大的兼容性（和个人的一点点偏好）。
  */
 export enum MessageContentType {
@@ -240,7 +249,7 @@ export interface Image extends MessageContent {
  * 出站图片
  */
 export interface OutboundImage extends MessageContent {
-	type: MessageContentType.IMAGE;
+	type: MessageContentType.IMAGE | MessageContentType.TRANSIENT_IMAGE;
 }
 
 /**
@@ -330,6 +339,9 @@ export interface AppMessage extends MessageContent {
 
 /**
  * 戳一戳动作类型
+ *
+ * @enum {string}
+ * @readonly
  */
 export enum InteractMessageType {
 	/** 戳一戳 */

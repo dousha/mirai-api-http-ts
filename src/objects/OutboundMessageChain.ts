@@ -1,5 +1,4 @@
-import { Mention, MessageContent, MessageContentType, PlainText, UrlBasedOutboundImage } from './Message';
-import { TODO } from '../utils/TodoUtils';
+import { Emoticon, IdBasedOutboundImage, Mention, MentionAll, Message, MessageContent, MessageContentType, PlainText, UrlBasedOutboundImage, Voice } from './Message';
 
 /**
  * 出方向消息链
@@ -102,14 +101,162 @@ export class OutboundMessageChain {
 	}
 
 	/**
-	 * 解析 Mirai 码。
+	 * 从入站消息构建消息链。
+	 *
+	 * @param {Message} msg 入站消息
+	 * @since 0.1.6
+	 */
+	public static ofMessage(msg: Message): OutboundMessageChain {
+		const out = new OutboundMessageChain();
+		out.content = msg.messageChain;
+		return out;
+	}
+
+	/**
+	 * 解析 Mirai 码。如果明文中包含方括号，则需要用反斜杠转义。
+	 * 可以使用 {@link escapeMirai} 方法。
+	 * <br>
+	 * 由于上游文档的不一致性，部分在文档中的内容也不会进行转义。
+	 * 这些内容包括 `PokeMessage` ({@link InteractMessage}) 和 `VipFace` (未在 `mirai-api-http` 中实现).
+	 * <br>
+	 * 解析器会忽略 `source` 标签。
+	 * <br>
+	 * 解析器将不抛出异常，除非遇到数字转换失败，其他任何的错误都将会被安静地忽略。
+	 * 如果解析遇到不能理解或尚未实现的标签，则会保留原标签内容。
+	 * 解析器会最大限度地从不合法的输入中恢复，但可能会出现不可预料的后果。
+	 * <br>
+	 * 注意：参数将不会 `trim()`. 任何白字符将会被保留。
 	 *
 	 * @param {string} str Mirai 码
-	 * @todo 正在开发，调用则会立刻抛出异常
+	 * @since 0.1.7
+	 * @see {@link https://github.com/mamoe/mirai/blob/dev/docs/mirai-code-specification.md 规范文档}
 	 */
 	public static ofMiraiCode(str: string): OutboundMessageChain {
 		const out = new OutboundMessageChain();
-		TODO();
+		const iter = str[Symbol.iterator]();
+		let escapeNext = false, inTag = false;
+		let item = iter.next();
+		let buf = '', paramBuf = '';
+		const params: Array<string> = [];
+		while (!item.done) {
+			if (item.value === '\\') {
+				if (escapeNext) {
+					buf += '\\';
+				} else {
+					escapeNext = true;
+				}
+			} else if (item.value === '[') {
+				if (escapeNext) {
+					buf += '[';
+				} else {
+					if (inTag) {
+						// malformed tag
+						buf += paramBuf + '[';
+						paramBuf = '';
+						inTag = false;
+					} else {
+						// flush previous block
+						if (buf.length > 0) {
+							out.appendText(buf);
+							buf = '';
+						}
+						paramBuf = '';
+						inTag = true;
+					}
+				}
+			} else if (item.value === ']') {
+				if (escapeNext) {
+					if (inTag) {
+						paramBuf += ']';
+					} else {
+						buf += ']';
+					}
+				} else {
+					// flush the last part
+					params.push(paramBuf);
+					// assemble tags
+					// the first part must be mirai:*
+					const identifier = params[0];
+					const identifierParts = identifier.split(':');
+					if (identifierParts[0] !== 'mirai' || identifierParts.length < 2) {
+						// bad tag
+						buf += '[' + params.join(',') + ']';
+					} else {
+						if (identifierParts.length > 2) {
+							const firstParam = identifierParts[2];
+							switch(identifierParts[1]) {
+								case 'at':
+									out.append({
+										type: MessageContentType.MENTION,
+										target: Number(firstParam),
+										display: ''
+									} as Mention);
+									break;
+								case 'face':
+									out.append({
+										type: MessageContentType.EMOTICON,
+										faceId: Number(firstParam)
+									} as Emoticon);
+									break;
+								case 'flash':
+									out.append({
+										type: MessageContentType.TRANSIENT_IMAGE,
+										imageId: firstParam,
+									} as IdBasedOutboundImage);
+									break;
+								case 'image':
+									out.append({
+										type: MessageContentType.IMAGE,
+										imageId: firstParam,
+									} as IdBasedOutboundImage);
+									break;
+								case 'voice':
+									out.append({
+										type: MessageContentType.VOICE,
+										voiceId: firstParam
+									} as Voice);
+									break;
+								case 'source':
+									// this tag is ignored
+									break;
+								default:
+									// unidentified tag
+									buf += '[' + params.join(',') + ']';
+									break;
+							}
+						} else {
+							switch(identifierParts[1]) {
+								case 'atall':
+									out.append({
+										type: MessageContentType.MENTION_ALL
+									} as MentionAll);
+									break;
+								default:
+									// unidentified tag
+									buf += '[' + params.join(',') + ']';
+									break;
+							}
+						}
+					}
+					inTag = false;
+				}
+			} else {
+				if (inTag) {
+					if (item.value === ',') {
+						if (escapeNext) {
+							paramBuf += ',';
+						} else {
+							params.push(paramBuf);
+							paramBuf = '';
+						}
+					}
+				} else {
+					buf += item.value;
+				}
+			}
+			escapeNext = false;
+			item = iter.next();
+		}
 		return out;
 	}
 
