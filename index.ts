@@ -11,7 +11,7 @@ import { FriendListingResponse, GroupListingResponse, GroupMemberListingResponse
 import { GroupMember } from './src/objects/GroupMember';
 import { GroupManager } from './src/objects/GroupManager';
 import { Group } from './src/objects/Group';
-import { Event } from './src/objects/Event';
+import { Event, EventTypeLut } from './src/objects/Event';
 import { Message, MessageTypeLut } from './src/objects/Message';
 import { RequestBase, RequestConstructorLut, RequestTypeLut } from './src/objects/Request';
 import { isEvent, isMessage, isRequest } from './src/utils/TypeUtils';
@@ -24,6 +24,8 @@ export interface MiraiClient extends EventEmitter {
 	on<U extends keyof MessageTypeLut>(type: U, cb: (msg: InboundMessage<MessageTypeLut[U]>) => void): this;
 
 	on(type: 'event', cb: (ev: Event) => void): this;
+
+	on<U extends keyof EventTypeLut>(type: U, cb: (ev: EventTypeLut[U]) => void): this;
 
 	on(type: 'request', cb: (ev: RequestBase) => void): this;
 
@@ -136,7 +138,7 @@ export class MiraiClient extends EventEmitter {
 			this.emit(obj.type, inboundMsg);
 		} else if (isEvent(obj)) {
 			this.emit('event', obj);
-			// TODO: make events more granular
+			this.emit(obj.type, obj);
 			if (isRequest(obj)) {
 				this.emit('request', obj);
 				const cons = RequestConstructorLut[obj.type];

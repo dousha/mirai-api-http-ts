@@ -1,16 +1,10 @@
-/**
- * 基本消息类型
- *
- * @readonly
- * @enum {string}
- */
 import { Group } from './Group';
 import { GroupPermission } from './GroupPermission';
 
 /**
  * 消息类型
  *
- * @enum
+ * @enum {string}
  */
 export enum MessageType {
 	/** 群消息 */

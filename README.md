@@ -29,7 +29,7 @@ Documentation in progress...
 See `examples/` for working examples. Here is a simple echo bot example:
 
 ```ts
-import { MiraiClient, OutboundMessageChiain, Message } from '@dousha99/mirai-api-http-ts';
+import { MiraiClient, OutboundMessageChiain, MessageType } from '@dousha99/mirai-api-http-ts';
 
 const mirai = new MiraiClient({
 	connection: {
@@ -47,14 +47,12 @@ const mirai = new MiraiClient({
 	},
 });
 
-mirai.on('message', msg => {
-	if (msg.message.type === Message.MessageType.FRIEND_MESSAGE) {
-		if (msg.isPlainTextMessage()) {
-			const text = msg.getPlainText();
-			msg.reply(OutboundMessageChain.ofText(text)).catch(e => console.error(e));
-			if (text.trim() === 'stophammertime') {
-				mirai.close();
-			}
+mirai.on(MessageType.FRIEND_MESSAGE, msg => {
+	if (msg.isPlainTextMessage()) {
+		const text = msg.extractPlainText();
+		msg.reply(OutboundMessageChain.ofText(text)).catch(e => console.error(e));
+		if (text.trim() === 'stophammertime') {
+			mirai.close();
 		}
 	}
 });
