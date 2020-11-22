@@ -96,6 +96,9 @@ export interface FriendRequest extends RequestBase {
 
 /**
  * 好友添加请求
+ * 
+ * @extends InboundRequest
+ * @since 0.1.6
  */
 export class FriendRequest extends InboundRequest {
 	/**
@@ -136,6 +139,9 @@ export interface GroupJoinRequest extends RequestBase {
 
 /**
  * 群成员申请加入请求
+ * 
+ * @extends InboundRequest
+ * @since 0.1.6
  */
 export class GroupJoinRequest extends InboundRequest {
 	/**
@@ -196,6 +202,9 @@ export interface GroupInviteRequest extends RequestBase {
 
 /**
  * 邀请入群请求
+ * 
+ * @extends InboundRequest
+ * @since 0.1.6
  */
 export class GroupInviteRequest extends InboundRequest {
 	/**
