@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,7 +7,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> GroupMemberJoinedEvent</title>
+  <title> src/objects/XmlCard.ts</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -73,101 +75,71 @@
         <div class="core" id="main-content-wrapper">
             <div class="content">
                 <header class="page-title">
-                    <p>Interface</p>
-                    <h1>GroupMemberJoinedEvent</h1>
+                    <p>Source</p>
+                    <h1>src/objects/XmlCard.ts</h1>
                 </header>
                 
 
 
 
-
-<section>
-
-<header>
     
-        <h2>GroupMemberJoinedEvent</h2>
-        
-    
-</header>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * XML 卡片
+ *
+ * @since 0.1.8
+ */
+import { MessageContentType, XmlMessage } from "./Message";
 
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description">群成员加入事件</div>
-        
+export class XmlCard {
+	/**
+	 * @constructor
+	 * @param {string} title 标题
+	 * @param {string} text 正文
+	 * @param {string} coverUrl 封面 URL
+	 * @param {XmlCardLayout} layout 样式，默认为 {@link XmlCardLayout.SHARE}
+	 * @param {XmlCardControl} control 控件，默认为 {@link XmlCardControl.ALL}
+	 */
+	constructor(private readonly title: string, private readonly text: string, private readonly coverUrl: string, private readonly layout: XmlCardLayout = XmlCardLayout.SHARE, private readonly control: XmlCardControl = XmlCardControl.ALL) {
+	}
 
-        
+	public get xmlChain(): XmlMessage {
+		return {
+			type: MessageContentType.XML,
+			xml: this.xml
+		};
+	}
 
+	public get xml(): string {
+		return `&lt;?xml version="1.0" encoding="utf-8" standalone="yes"?>&lt;msg flag="${this.control}" serviceID="1" brief=" templateID="1" action="plugin">&lt;item layout="${this.layout}">&lt;title>&lt;![CDATA[${this.title}]]>&lt;/title>&lt;summary>&lt;![CDATA[${this.text}]]>&lt;/summary>&lt;picture cover="${this.coverUrl}"/>&lt;/item>&lt;/msg>`;
+	}
+}
 
-<dl class="details">
+/**
+ * XML 卡片的控件（转发、收藏）
+ *
+ * @enum {number}
+ */
+export enum XmlCardControl {
+	ALL = 0,
+	NO_FORWARDING = 1,
+	NO_FAVORITE = 2,
+	NONE = 3,
+}
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="src_objects_Event.ts.html" class="button">View Source</a>
-            <span>
-                <a href="src_objects_Event.ts.html">src/objects/Event.ts</a>, <a href="src_objects_Event.ts.html#line285">line 285</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-        
-    
-    </div>
-    
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+export enum XmlCardLayout {
+	LINEAR = 0,
+	RESERVED = 1,
+	SHARE = 2,
+	GALLERY = 3,
+	SHARE_TITLE_ONY = 4,
+	BACKDROP = 5,
+	RESERVED_2 = 6,
+}
+</code></pre>
+        </article>
+    </section>
 
 
 
