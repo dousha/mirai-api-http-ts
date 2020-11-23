@@ -18,6 +18,7 @@ import { OutboundMessageChain } from './OutboundMessageChain';
 import { AxiosResponse } from 'axios';
 import { BasicResponse } from './ServerResponse';
 import { escapeMirai } from '../utils/TextUtils';
+import { shouldNotBeMultipart } from '../utils/InspectUtils';
 
 /**
  * 入站消息
@@ -51,6 +52,10 @@ export class InboundMessage<T extends Message> {
 
 	/**
 	 * 回复这条消息。
+	 * <br>
+	 * 该函数会自动添加引用回复（自从 0.1.1 版本）。
+	 * <br>
+	 * 对于特殊类型的消息（如 XML, JSON, 语音消息等）将不会生成引用回复部分或 at 部分（自从 0.1.8 版本）。
 	 *
 	 * @param {OutboundMessageChain} chain 消息链
 	 * @param {boolean} useAt 回复时提到该消息的发送人。对于非群消息则该参数被忽略。默认为否。（自从 0.1.4 版本添加）
@@ -68,8 +73,10 @@ export class InboundMessage<T extends Message> {
 			targetId: sender.id,
 			origin: this.message.messageChain,
 		};
-		chain.prepend(quoteBlock); // FIXME: it doesn't quite work as intended.
-		if (useAt && this.message.type === MessageType.GROUP_MESSAGE) {
+		if (!shouldNotBeMultipart(chain.chain)) {
+			chain.prepend(quoteBlock); // FIXME: it doesn't quite work as intended.
+		}
+		if (useAt && this.message.type === MessageType.GROUP_MESSAGE && !shouldNotBeMultipart(chain.chain)) {
 			const mentionBlock: Mention = {
 				type: MessageContentType.MENTION,
 				target: sender.id,
@@ -142,7 +149,7 @@ export class InboundMessage<T extends Message> {
 
 	/**
 	 * 提取消息中的文字。
-	 *
+	 * <br>
 	 * 当消息中包含多个内容时，文字将会被滤出并用连接符连接。
 	 *
 	 * @param {string} joiner 连接符，默认为换行

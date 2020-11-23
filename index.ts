@@ -161,6 +161,7 @@ export class MiraiClient extends EventEmitter {
 export { Config, InboundMessage, Friend, GroupManager, Group, GroupMember, Event, FriendListingResponse, GroupListingResponse, GroupMemberListingResponse };
 export * as Message from './src/objects/Message';
 export { MessageType, FriendMessage, GroupMessage, TempMessage } from './src/objects/Message';
+export { XmlCard } from './src/objects/XmlCard';
 export { EventType, BotEventType, RequestType, GroupMemberEventType, GroupPolicyEventType, MessageEventType } from './src/objects/Event';
 export * as Events from './src/objects/Event';
 export { RequestBase, GroupJoinRequest, GroupInviteRequest, FriendRequest } from './src/objects/Request';

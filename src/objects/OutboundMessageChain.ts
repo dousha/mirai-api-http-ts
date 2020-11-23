@@ -1,4 +1,16 @@
-import { Emoticon, IdBasedOutboundImage, Mention, MentionAll, Message, MessageContent, MessageContentType, PlainText, UrlBasedOutboundImage, Voice } from './Message';
+import {
+	Emoticon,
+	IdBasedOutboundImage,
+	Mention,
+	MentionAll,
+	Message,
+	MessageContent,
+	MessageContentType,
+	PlainText,
+	UrlBasedOutboundImage,
+	Voice,
+} from './Message';
+import { XmlCard } from './XmlCard';
 
 /**
  * 出方向消息链
@@ -109,6 +121,42 @@ export class OutboundMessageChain {
 	public static ofMessage(msg: Message): OutboundMessageChain {
 		const out = new OutboundMessageChain();
 		out.content = msg.messageChain;
+		return out;
+	}
+
+	/**
+	 * 构建一个 XML 消息链。
+	 *
+	 * @param {XmlCard} card XML 卡片实例
+	 * @since 0.1.8
+	 */
+	public static ofXmlCard(card: XmlCard): OutboundMessageChain {
+		const out = new OutboundMessageChain();
+		out.append(card.xmlChain);
+		return out;
+	}
+
+	/**
+	 * 从多个消息内容构建消息链。
+	 *
+	 * @param {MessageContent} content 消息内容，不定参数
+	 * @since 0.1.8
+	 */
+	public static ofMultiple(...content: MessageContent[]): OutboundMessageChain {
+		const out = new OutboundMessageChain();
+		out.content = content;
+		return out;
+	}
+
+	/**
+	 * 从消息链数组构建消息链。
+	 *
+	 * @param {MessageContent[]} content 消息内容
+	 * @since 0.1.8
+	 */
+	public static ofChain(content: MessageContent[]): OutboundMessageChain {
+		const out = new OutboundMessageChain();
+		out.content = content;
 		return out;
 	}
 
