@@ -142,7 +142,8 @@ export class MiraiClient extends EventEmitter {
 			if (isRequest(obj)) {
 				this.emit('request', obj);
 				const cons = RequestConstructorLut[obj.type];
-				this.emit(obj.type, new cons(this.auth, this.http, obj));
+				const req = new cons(this.auth, this.http, obj);
+				this.emit(obj.type, req);
 			}
 		} else {
 			console.warn(`Received unknown type of message: ${JSON.stringify(obj)}`);

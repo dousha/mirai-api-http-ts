@@ -47,7 +47,7 @@ export abstract class InboundRequest {
 	 * @param event 事件
 	 * @protected
 	 */
-	protected constructor(protected readonly auth: SessionAuthenticationService, protected readonly http: HttpService, protected readonly path: string, protected readonly event: RequestBase) {
+	protected constructor(protected readonly auth: SessionAuthenticationService, protected readonly http: HttpService, protected readonly event: RequestBase, protected readonly path: string) {
 	}
 
 	/**
@@ -96,7 +96,7 @@ export interface FriendRequest extends RequestBase {
 
 /**
  * 好友添加请求
- * 
+ *
  * @extends InboundRequest
  * @since 0.1.6
  */
@@ -109,7 +109,7 @@ export class FriendRequest extends InboundRequest {
 	 * @param event
 	 */
 	constructor(auth: SessionAuthenticationService, http: HttpService, event: FriendRequest) {
-		super(auth, http, '/resp/newFriendRequestEvent', event);
+		super(auth, http, event, '/resp/newFriendRequestEvent');
 	}
 
 	/**
@@ -139,7 +139,7 @@ export interface GroupJoinRequest extends RequestBase {
 
 /**
  * 群成员申请加入请求
- * 
+ *
  * @extends InboundRequest
  * @since 0.1.6
  */
@@ -152,7 +152,7 @@ export class GroupJoinRequest extends InboundRequest {
 	 * @param event
 	 */
 	constructor(auth: SessionAuthenticationService, http: HttpService, event: GroupJoinRequest) {
-		super(auth, http, '/resp/memberJoinRequestEvent', event);
+		super(auth, http, event, '/resp/memberJoinRequestEvent');
 	}
 
 	/**
@@ -202,7 +202,7 @@ export interface GroupInviteRequest extends RequestBase {
 
 /**
  * 邀请入群请求
- * 
+ *
  * @extends InboundRequest
  * @since 0.1.6
  */
@@ -215,7 +215,7 @@ export class GroupInviteRequest extends InboundRequest {
 	 * @param event
 	 */
 	constructor(auth: SessionAuthenticationService, http: HttpService, event: GroupInviteRequest) {
-		super(auth, http, '/resp/botInvitedJoinGroupRequestEvent', event);
+		super(auth, http, event, '/resp/botInvitedJoinGroupRequestEvent');
 	}
 }
 
@@ -234,8 +234,9 @@ export type RequestTypeLut = {
 	[RequestType.GROUP_INVITE_REQUEST]: GroupInviteRequest
 };
 
-export const RequestConstructorLut: Record<RequestType, { new(auth: SessionAuthenticationService, http: HttpService, event: RequestBase): InboundRequest }> = {
-	[RequestType.FRIEND_REQUEST]: Object.getPrototypeOf(FriendRequest).constructor,
-	[RequestType.GROUP_INVITE_REQUEST]: Object.getPrototypeOf(GroupInviteRequest).constructor,
-	[RequestType.GROUP_JOIN_REQUEST]: Object.getPrototypeOf(GroupJoinRequest).constructor,
+// FIXME: figure out the correct type
+export const RequestConstructorLut: Record<RequestType, any> = {
+	[RequestType.FRIEND_REQUEST]: FriendRequest,
+	[RequestType.GROUP_INVITE_REQUEST]: GroupInviteRequest,
+	[RequestType.GROUP_JOIN_REQUEST]: GroupJoinRequest,
 };
