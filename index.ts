@@ -1,20 +1,20 @@
-import { Config } from './src/objects/Config';
-import { EventEmitter } from 'events';
-import { InboundMessage } from './src/objects/InboundMessage';
-import { HttpService } from './src/services/HttpService';
-import { SessionAuthenticationService } from './src/services/SessionAuthenticationService';
-import { WebSocketService } from './src/services/WebSocketService';
-import { InboundMessagingService } from './src/services/InboundMessagingService';
-import { OutboundMessagingService } from './src/services/OutboundMessagingService';
-import { Friend } from './src/objects/Friend';
-import { FriendListingResponse, GroupListingResponse, GroupMemberListingResponse } from './src/objects/ServerResponse';
-import { GroupMember } from './src/objects/GroupMember';
-import { GroupManager } from './src/objects/GroupManager';
-import { Group } from './src/objects/Group';
-import { Event, EventTypeLut } from './src/objects/Event';
-import { Message, MessageTypeLut } from './src/objects/Message';
-import { RequestBase, RequestConstructorLut, RequestTypeLut } from './src/objects/Request';
-import { isEvent, isMessage, isRequest } from './src/utils/TypeUtils';
+import {Config} from './src/objects/Config';
+import {EventEmitter} from 'events';
+import {InboundMessage} from './src/objects/InboundMessage';
+import {HttpService} from './src/services/HttpService';
+import {SessionAuthenticationService} from './src/services/SessionAuthenticationService';
+import {WebSocketService} from './src/services/WebSocketService';
+import {InboundMessagingService} from './src/services/InboundMessagingService';
+import {OutboundMessagingService} from './src/services/OutboundMessagingService';
+import {Friend} from './src/objects/Friend';
+import {FriendListingResponse, GroupListingResponse, GroupMemberListingResponse} from './src/objects/ServerResponse';
+import {GroupMember} from './src/objects/GroupMember';
+import {GroupManager} from './src/objects/GroupManager';
+import {Group} from './src/objects/Group';
+import {Event, EventTypeLut} from './src/objects/Event';
+import {Message, MessageTypeLut} from './src/objects/Message';
+import {RequestBase, RequestConstructorLut, RequestTypeLut} from './src/objects/Request';
+import {isEvent, isMessage, isRequest} from './src/utils/TypeUtils';
 
 export interface MiraiClient extends EventEmitter {
 	on(type: 'connect', cb: () => void): this;
@@ -38,6 +38,12 @@ export interface MiraiClient extends EventEmitter {
  * 客户端核心类
  */
 export class MiraiClient extends EventEmitter {
+	private readonly http: HttpService;
+	private readonly auth: SessionAuthenticationService;
+	private readonly out: OutboundMessagingService;
+	private ws?: WebSocketService;
+	private inbound?: InboundMessagingService;
+
 	/**
 	 * @constructor
 	 * @param {Config} config 客户端配置
@@ -58,6 +64,7 @@ export class MiraiClient extends EventEmitter {
 			this.inbound = new InboundMessagingService(config.connection, this.auth, this.out, this.http);
 			this.inbound.on('message', m => this.processMessage(m)).on('error', e => this.emit('error', e));
 		}
+		this.installSignalHandler();
 	}
 
 	/**
@@ -69,7 +76,9 @@ export class MiraiClient extends EventEmitter {
 	 * @since 0.1.4
 	 */
 	public waitForReady(): Promise<void> {
-		return this.auth.obtainToken().then(() => { return; });
+		return this.auth.obtainToken().then(() => {
+			return;
+		});
 	}
 
 	/**
@@ -125,10 +134,10 @@ export class MiraiClient extends EventEmitter {
 	 *
 	 * @since 0.0.1
 	 */
-	public close(): void {
+	public async close(): Promise<void> {
 		this.ws?.close();
 		this.inbound?.close();
-		this.auth.close().catch(console.error);
+		await this.auth.close().catch(console.error);
 	}
 
 	private processMessage(obj: unknown) {
@@ -150,21 +159,40 @@ export class MiraiClient extends EventEmitter {
 		}
 	}
 
-	private readonly http: HttpService;
-	private readonly auth: SessionAuthenticationService;
-	private readonly out: OutboundMessagingService;
-	private ws?: WebSocketService;
-	private inbound?: InboundMessagingService;
+	private installSignalHandler() {
+		const cleanup = () => {
+			this.close().finally(() => {
+				process.exit(0);
+			});
+		};
+
+		process.once('uncaughtException', cleanup);
+		process.once('SIGTERM', cleanup);
+		process.once('SIGINT', cleanup);
+	}
 }
 
 /* Re-exporting necessary stuff */
 
-export { Config, InboundMessage, Friend, GroupManager, Group, GroupMember, Event, FriendListingResponse, GroupListingResponse, GroupMemberListingResponse };
+export {
+	Config,
+	InboundMessage,
+	Friend,
+	GroupManager,
+	Group,
+	GroupMember,
+	Event,
+	FriendListingResponse,
+	GroupListingResponse,
+	GroupMemberListingResponse
+};
 export * as Message from './src/objects/Message';
-export { MessageType, FriendMessage, GroupMessage, TempMessage } from './src/objects/Message';
-export { XmlCard } from './src/objects/XmlCard';
-export { EventType, BotEventType, RequestType, GroupMemberEventType, GroupPolicyEventType, MessageEventType } from './src/objects/Event';
+export {MessageType, FriendMessage, GroupMessage, TempMessage} from './src/objects/Message';
+export {XmlCard} from './src/objects/XmlCard';
+export {
+	EventType, BotEventType, RequestType, GroupMemberEventType, GroupPolicyEventType, MessageEventType
+} from './src/objects/Event';
 export * as Events from './src/objects/Event';
-export { RequestBase, GroupJoinRequest, GroupInviteRequest, FriendRequest } from './src/objects/Request';
-export { OutboundMessageChain } from './src/objects/OutboundMessageChain';
-export { StatusCode } from './src/objects/StatusCode';
+export {RequestBase, GroupJoinRequest, GroupInviteRequest, FriendRequest} from './src/objects/Request';
+export {OutboundMessageChain} from './src/objects/OutboundMessageChain';
+export {StatusCode} from './src/objects/StatusCode';
