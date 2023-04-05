@@ -1,20 +1,18 @@
 import {Config} from './src/objects/Config';
 import {EventEmitter} from 'events';
 import {InboundMessage} from './src/objects/InboundMessage';
-import {HttpService} from './src/services/HttpService';
-import {SessionAuthenticationService} from './src/services/SessionAuthenticationService';
-import {WebSocketService} from './src/services/WebSocketService';
-import {InboundMessagingService} from './src/services/InboundMessagingService';
-import {OutboundMessagingService} from './src/services/OutboundMessagingService';
 import {Friend} from './src/objects/Friend';
 import {FriendListingResponse, GroupListingResponse, GroupMemberListingResponse} from './src/objects/ServerResponse';
 import {GroupMember} from './src/objects/GroupMember';
-import {GroupManager} from './src/objects/GroupManager';
 import {Group} from './src/objects/Group';
 import {Event, EventTypeLut} from './src/objects/Event';
 import {Message, MessageTypeLut} from './src/objects/Message';
-import {RequestBase, RequestConstructorLut, RequestTypeLut} from './src/objects/Request';
-import {isEvent, isMessage, isRequest} from './src/utils/TypeUtils';
+import {RequestBase, RequestTypeLut} from './src/objects/Request';
+import {URL} from 'url';
+import {InvalidDataError} from './src/types/MiraiException';
+import {MiraiService} from './src/services/MiraiService';
+import {HttpBasedMiraiService} from './src/services/HttpBasedMiraiService';
+import {WebsocketBasedMiraiService} from './src/services/WebsocketBasedMiraiService';
 
 export interface MiraiClient extends EventEmitter {
 	on(type: 'connect', cb: () => void): this;
@@ -38,95 +36,38 @@ export interface MiraiClient extends EventEmitter {
  * 客户端核心类
  */
 export class MiraiClient extends EventEmitter {
-	private readonly http: HttpService;
-	private readonly auth: SessionAuthenticationService;
-	private readonly out: OutboundMessagingService;
-	private ws?: WebSocketService;
-	private inbound?: InboundMessagingService;
+	private readonly service: MiraiService;
 
 	/**
 	 * @constructor
 	 * @param {Config} config 客户端配置
 	 */
-	constructor(config: Config) {
+	constructor(private readonly config: Config) {
 		super();
-		this.http = new HttpService(config.connection);
-		this.auth = new SessionAuthenticationService(config.account, this.http);
-		this.out = new OutboundMessagingService(this.auth, this.http);
-		this.auth.obtainToken().then(token => {
-			console.debug(`Obtained token ${token}`);
-			this.emit('connect');
-		});
-		if (config.connection.useWebsocket) {
-			this.ws = new WebSocketService(config.connection, this.auth, this.out);
-			this.ws.on('message', obj => this.processMessage(obj)).on('error', e => this.emit('error', e));
+		const url = new URL(config.connection.uri);
+		const protocol = url.protocol.toLowerCase();
+		if (protocol.startsWith('http')) {
+			// use http
+			this.service = new HttpBasedMiraiService(this, {
+				baseUrl: config.connection.uri,
+				timeout: config.connection.timeout,
+				pollInterval: config.connection.pollPeriod,
+				pollCount: config.connection.pollCount,
+				authKey: config.account.authKey,
+				botId: config.account.account
+			});
+		} else if (protocol.startsWith('ws')) {
+			// use ws
+			this.service = new WebsocketBasedMiraiService(this, {
+				endpoint: config.connection.uri,
+				authKey: config.account.authKey,
+				botId: config.account.account
+			});
 		} else {
-			this.inbound = new InboundMessagingService(config.connection, this.auth, this.out, this.http);
-			this.inbound.on('message', m => this.processMessage(m)).on('error', e => this.emit('error', e));
+			throw new InvalidDataError(`Unknown protocol ${protocol}`);
 		}
+
 		this.installSignalHandler();
-	}
-
-	/**
-	 * 等待机器人就绪
-	 * <br>
-	 * 这个函数存在的意义只是为了好看，或者说允许 `await` 机器人就绪。
-	 * 它并没有特殊的用途，你也不需要等待机器人就绪后再注册回调函数。
-	 *
-	 * @since 0.1.4
-	 */
-	public waitForReady(): Promise<void> {
-		return this.auth.obtainToken().then(() => {
-			return;
-		});
-	}
-
-	/**
-	 * 获取好友列表
-	 *
-	 * @since 0.1.4
-	 */
-	public getFriendList(): Promise<Friend[]> {
-		return this.auth.obtainToken().then(token =>
-			this.http.get<FriendListingResponse>('/friendList', {
-				sessionKey: token,
-			})).then(x => x.data);
-	}
-
-	/**
-	 * 获取群列表
-	 *
-	 * @since 0.1.4
-	 */
-	public getGroupList(): Promise<Group[]> {
-		return this.auth.obtainToken().then(token =>
-			this.http.get<GroupListingResponse>('/groupList', {
-				sessionKey: token,
-			}).then(x => x.data));
-	}
-
-	/**
-	 * 获取群成员列表
-	 *
-	 * @param {number} groupId 群号
-	 * @since 0.1.4
-	 */
-	public getMembersOfGroup(groupId: number): Promise<GroupMember[]> {
-		return this.auth.obtainToken().then(token =>
-			this.http.get<GroupMemberListingResponse>('/memberList', {
-				sessionKey: token,
-				target: groupId,
-			}).then(x => x.data));
-	}
-
-	/**
-	 * 获取群管理工具
-	 *
-	 * @param {number} groupId 群号
-	 * @since 0.1.4
-	 */
-	public getGroupManager(groupId: number): GroupManager {
-		return new GroupManager(groupId, this.http, this.auth);
 	}
 
 	/**
@@ -135,28 +76,11 @@ export class MiraiClient extends EventEmitter {
 	 * @since 0.0.1
 	 */
 	public async close(): Promise<void> {
-		this.ws?.close();
-		this.inbound?.close();
-		await this.auth.close().catch(console.error);
+		await this.service.teardown();
 	}
 
-	private processMessage(obj: unknown) {
-		if (isMessage(obj)) {
-			const inboundMsg = new InboundMessage(obj, this.out);
-			this.emit('message', inboundMsg);
-			this.emit(obj.type, inboundMsg);
-		} else if (isEvent(obj)) {
-			this.emit('event', obj);
-			this.emit(obj.type, obj);
-			if (isRequest(obj)) {
-				this.emit('request', obj);
-				const cons = RequestConstructorLut[obj.type];
-				const req = new cons(this.auth, this.http, obj);
-				this.emit(obj.type, req);
-			}
-		} else {
-			console.warn(`Received unknown type of message: ${JSON.stringify(obj)}`);
-		}
+	public getService(): MiraiService {
+		return this.service;
 	}
 
 	private installSignalHandler() {
@@ -178,7 +102,6 @@ export {
 	Config,
 	InboundMessage,
 	Friend,
-	GroupManager,
 	Group,
 	GroupMember,
 	Event,

@@ -7,18 +7,17 @@ import {
 	MessageContent,
 	MessageContentType,
 	MessageHeader,
+	MessageId,
 	MessageSender,
 	MessageType,
 	PlainText,
 	Quote,
 	Voice,
 } from './Message';
-import { OutboundMessagingService } from '../services/OutboundMessagingService';
-import { OutboundMessageChain } from './OutboundMessageChain';
-import { AxiosResponse } from 'axios';
-import { BasicResponse } from './ServerResponse';
-import { escapeMirai } from '../utils/TextUtils';
-import { shouldNotBeMultipart } from '../utils/InspectUtils';
+import {OutboundMessageChain} from './OutboundMessageChain';
+import {escapeMirai} from '../utils/TextUtils';
+import {shouldNotBeMultipart} from '../utils/InspectUtils';
+import {MiraiService} from '../services/MiraiService';
 
 /**
  * 入站消息
@@ -28,9 +27,38 @@ export class InboundMessage<T extends Message> {
 	 * @constructor
 	 * @hideconstructor
 	 * @param {Message} message 消息
-	 * @param {OutboundMessagingService} srvc 发送服务
+	 * @param {MiraiService} srvc 服务接口
 	 */
-	constructor(public readonly message: T, private readonly srvc: OutboundMessagingService) {
+	constructor(public readonly message: T, private readonly srvc: MiraiService) {
+	}
+
+	/**
+	 * 获取消息头
+	 *
+	 * @returns {MessageHeader}
+	 * @since 0.0.1
+	 */
+	public get header(): MessageHeader {
+		return this.message.messageChain[0] as MessageHeader;
+	}
+
+	/**
+	 * 获取发送方 ID
+	 *
+	 * @since 0.0.1
+	 */
+	public get id(): number {
+		return this.header.id;
+	}
+
+	/**
+	 * 获取发送方
+	 *
+	 * @returns {PrivateMessageSender | GroupMessageSender}
+	 * @since 0.0.1
+	 */
+	public get sender(): MessageSender {
+		return this.message.sender;
 	}
 
 	/**
@@ -42,11 +70,11 @@ export class InboundMessage<T extends Message> {
 	 *
 	 * @since 0.0.1
 	 */
-	public revoke(): Promise<AxiosResponse<BasicResponse>> {
+	public revoke(): Promise<void> {
 		if (this.message.type !== MessageType.GROUP_MESSAGE) {
 			return Promise.reject('Cannot revoke a message of others');
 		} else {
-			return this.srvc.revokeMessage(this.id);
+			return this.srvc.revokeMessage(this.message.sender.id, this.id);
 		}
 	}
 
@@ -62,7 +90,7 @@ export class InboundMessage<T extends Message> {
 	 * @see OutboundMessageChain
 	 * @since 0.0.1
 	 */
-	public reply(chain: OutboundMessageChain, useAt = false): Promise<AxiosResponse<BasicResponse>> {
+	public reply(chain: OutboundMessageChain, useAt = false): Promise<MessageId> {
 		const header = this.header;
 		const sender = this.message.sender;
 		const quoteBlock: Quote = {
@@ -218,34 +246,5 @@ export class InboundMessage<T extends Message> {
 				}
 			})
 			.join('');
-	}
-
-	/**
-	 * 获取消息头
-	 *
-	 * @returns {MessageHeader}
-	 * @since 0.0.1
-	 */
-	public get header(): MessageHeader {
-		return this.message.messageChain[0] as MessageHeader;
-	}
-
-	/**
-	 * 获取发送方 ID
-	 *
-	 * @since 0.0.1
-	 */
-	public get id(): number {
-		return this.header.id;
-	}
-
-	/**
-	 * 获取发送方
-	 *
-	 * @returns {PrivateMessageSender | GroupMessageSender}
-	 * @since 0.0.1
-	 */
-	public get sender(): MessageSender {
-		return this.message.sender;
 	}
 }

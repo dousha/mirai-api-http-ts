@@ -12,20 +12,14 @@ export interface Config {
  * 连接配置
  */
 export interface ConnectionConfig {
-	/** 是否使用 TLS */
-	tls: boolean;
-	/** 主机名 */
-	host: string;
-	/** HTTP 端口 */
-	httpPort: number;
-	/** WebSocket 端口 */
-	websocketPort: number;
+	/** URI */
+	uri: string;
+	/** 连接超时时间，毫秒为单位 */
+	timeout?: number;
 	/** 轮询周期，毫秒为单位。使用 WebSocket 时则无意义 */
-	pollPeriod: number;
+	pollPeriod?: number;
 	/** 轮询消息数。使用 WebSocket 时则无意义 */
-	pollCount: number;
-	/** 是否使用 WebSocket */
-	useWebsocket: boolean;
+	pollCount?: number;
 }
 
 /**

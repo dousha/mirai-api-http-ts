@@ -1,8 +1,7 @@
-import { Event, RequestType } from './Event';
-import { SessionAuthenticationService } from '../services/SessionAuthenticationService';
-import { HttpService } from '../services/HttpService';
-import { BasicResponse } from './ServerResponse';
-import { AxiosResponse } from 'axios';
+import {Event, RequestType} from './Event';
+import {MiraiService} from '../services/MiraiService';
+
+export type RequestId = number;
 
 /**
  * 请求基类
@@ -11,7 +10,7 @@ import { AxiosResponse } from 'axios';
  */
 export interface RequestBase extends Event {
 	type: RequestType;
-	eventId: number;
+	eventId: RequestId;
 	fromId: number;
 	groupId: number;
 	nick: string;
@@ -24,8 +23,7 @@ export interface RequestBase extends Event {
  * @since 0.1.6
  */
 export interface ResponseBase extends Record<string, unknown> {
-	sessionKey: string;
-	eventId: number;
+	eventId: RequestId;
 	fromId: number;
 	groupId: number;
 	operate: number;
@@ -41,23 +39,11 @@ export abstract class InboundRequest {
 	/**
 	 * @constructor
 	 * @hideconstructor
-	 * @param auth 验证服务
-	 * @param http HTTP 服务
-	 * @param path 请求路径
+	 * @param srvc Mirai 服务
 	 * @param event 事件
 	 * @protected
 	 */
-	protected constructor(protected readonly auth: SessionAuthenticationService, protected readonly http: HttpService, protected readonly event: RequestBase, protected readonly path: string) {
-	}
-
-	/**
-	 * 回复该请求
-	 *
-	 * @param {number} v 回复值
-	 * @param {string} msg 回复信息，默认为空
-	 */
-	public reply(v: number, msg = ''): Promise<AxiosResponse<BasicResponse>> {
-		return this.auth.obtainToken().then(token => this.http.post<BasicResponse>(this.path, this.assembleResponse(token, v, msg)));
+	protected constructor(protected readonly srvc: MiraiService, protected readonly event: RequestBase) {
 	}
 
 	/**
@@ -65,22 +51,17 @@ export abstract class InboundRequest {
 	 *
 	 * @param {string} msg 回复信息，默认为空
 	 */
-	public accept(msg = ''): Promise<AxiosResponse<BasicResponse>> {
-		return this.reply(0, msg);
-	}
+	abstract accept(msg?: string): Promise<void>;
 
 	/**
 	 * 拒绝该请求
 	 *
 	 * @param {string} msg 回复信息，默认为空
 	 */
-	public reject(msg = ''): Promise<AxiosResponse<BasicResponse>> {
-		return this.reply(1, msg);
-	}
+	abstract reject(msg?: string): Promise<void>;
 
-	private assembleResponse(token: string, reply: number, message: string): ResponseBase {
+	protected assembleResponse(reply: number, message = ''): ResponseBase {
 		return {
-			sessionKey: token,
 			eventId: this.event.eventId,
 			fromId: this.event.fromId,
 			groupId: this.event.groupId,
@@ -104,12 +85,19 @@ export class FriendRequest extends InboundRequest {
 	/**
 	 * @constructor
 	 * @hideconstructor
-	 * @param auth
-	 * @param http
+	 * @param srvc
 	 * @param event
 	 */
-	constructor(auth: SessionAuthenticationService, http: HttpService, event: FriendRequest) {
-		super(auth, http, event, '/resp/newFriendRequestEvent');
+	constructor(srvc: MiraiService, event: FriendRequest) {
+		super(srvc, event);
+	}
+
+	accept(msg?: string): Promise<void> {
+		return this.srvc.respondToFriendRequest(this.assembleResponse(FriendResponseType.ACCEPT, msg));
+	}
+
+	reject(msg?: string): Promise<void> {
+		return this.srvc.respondToFriendRequest(this.assembleResponse(FriendResponseType.REJECT, msg));
 	}
 
 	/**
@@ -117,8 +105,8 @@ export class FriendRequest extends InboundRequest {
 	 *
 	 * @param {string} msg 回复消息，默认为空
 	 */
-	public rejectAndBlacklist(msg = ''): Promise<AxiosResponse<BasicResponse>> {
-		return this.reply(FriendResponseType.REJECT_AND_BLACKLIST, msg);
+	rejectAndBlacklist(msg?: string): Promise<void> {
+		return this.srvc.respondToFriendRequest(this.assembleResponse(FriendResponseType.REJECT_AND_BLACKLIST, msg));
 	}
 }
 
@@ -147,12 +135,19 @@ export class GroupJoinRequest extends InboundRequest {
 	/**
 	 * @constructor
 	 * @hideconstructor
-	 * @param auth
-	 * @param http
+	 * @param srvc
 	 * @param event
 	 */
-	constructor(auth: SessionAuthenticationService, http: HttpService, event: GroupJoinRequest) {
-		super(auth, http, event, '/resp/memberJoinRequestEvent');
+	constructor(srvc: MiraiService, event: GroupJoinRequest) {
+		super(srvc, event);
+	}
+
+	accept(msg?: string): Promise<void> {
+		return this.srvc.respondToGroupJoinRequest(this.assembleResponse(FriendResponseType.ACCEPT, msg));
+	}
+
+	reject(msg?: string): Promise<void> {
+		return this.srvc.respondToGroupJoinRequest(this.assembleResponse(FriendResponseType.REJECT, msg));
 	}
 
 	/**
@@ -160,8 +155,8 @@ export class GroupJoinRequest extends InboundRequest {
 	 *
 	 * @param msg 回复消息，默认为空
 	 */
-	public ignore(msg = ''): Promise<AxiosResponse<BasicResponse>> {
-		return this.reply(GroupJoinResponseType.IGNORE, msg);
+	public ignore(msg = ''): Promise<void> {
+		return this.srvc.respondToGroupJoinRequest(this.assembleResponse(GroupJoinResponseType.IGNORE, msg));
 	}
 
 	/**
@@ -169,8 +164,8 @@ export class GroupJoinRequest extends InboundRequest {
 	 *
 	 * @param msg 回复消息，默认为空
 	 */
-	public rejectAndBlacklist(msg = ''): Promise<AxiosResponse<BasicResponse>> {
-		return this.reply(GroupJoinResponseType.REJECT_AND_BLACKLIST, msg);
+	public rejectAndBlacklist(msg = ''): Promise<void> {
+		return this.srvc.respondToGroupJoinRequest(this.assembleResponse(GroupJoinResponseType.REJECT_AND_BLACKLIST, msg));
 	}
 
 	/**
@@ -178,8 +173,8 @@ export class GroupJoinRequest extends InboundRequest {
 	 *
 	 * @param msg 回复消息，默认为空
 	 */
-	public ignoreAndBlacklist(msg = ''): Promise<AxiosResponse<BasicResponse>> {
-		return this.reply(GroupJoinResponseType.IGNORE_AND_BLACKLIST, msg);
+	public ignoreAndBlacklist(msg = ''): Promise<void> {
+		return this.srvc.respondToGroupJoinRequest(this.assembleResponse(GroupJoinResponseType.IGNORE_AND_BLACKLIST, msg));
 	}
 }
 
@@ -210,12 +205,19 @@ export class GroupInviteRequest extends InboundRequest {
 	/**
 	 * @constructor
 	 * @hideconstructor
-	 * @param auth
-	 * @param http
+	 * @param srvc
 	 * @param event
 	 */
-	constructor(auth: SessionAuthenticationService, http: HttpService, event: GroupInviteRequest) {
-		super(auth, http, event, '/resp/botInvitedJoinGroupRequestEvent');
+	constructor(srvc: MiraiService, event: GroupInviteRequest) {
+		super(srvc, event);
+	}
+
+	accept(msg?: string): Promise<void> {
+		return this.srvc.respondToGroupInviteRequest(this.assembleResponse(GroupInviteResponseType.ACCEPT, msg));
+	}
+
+	reject(msg?: string): Promise<void> {
+		return this.srvc.respondToGroupInviteRequest(this.assembleResponse(GroupJoinResponseType.REJECT, msg));
 	}
 }
 

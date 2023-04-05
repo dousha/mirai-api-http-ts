@@ -1,5 +1,5 @@
-import { Group } from './Group';
-import { GroupPermission } from './GroupPermission';
+import {Group} from './Group';
+import {GroupPermission} from './GroupPermission';
 
 /**
  * 消息类型
@@ -20,6 +20,8 @@ export type MessageTypeLut = {
 	[MessageType.FRIEND_MESSAGE]: FriendMessage,
 	[MessageType.TEMP_MESSAGE]: TempMessage,
 };
+
+export type MessageId = number;
 
 /**
  * 消息发送者

@@ -1,14 +1,10 @@
-import { MiraiClient, OutboundMessageChain } from '../index';
-import { MessageType } from '../src/objects/Message';
+import {MiraiClient, OutboundMessageChain} from '../index';
+import {MessageType} from '../src/objects/Message';
 
 const mirai = new MiraiClient({
 	connection: {
-		tls: false,
-		host: 'localhost',
-		httpPort: 8080,
-		websocketPort: 8080,
-		useWebsocket: true,
-		pollPeriod: 5000,
+		uri: 'http://127.0.0.1:8080',
+		pollPeriod: 1000,
 		pollCount: 5,
 	},
 	account: {
